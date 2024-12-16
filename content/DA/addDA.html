@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <script src="/scripts/addDA.js" type="module"></script>
+    <link rel="stylesheet" href="/styles/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body style="width: 800px">
+    <div class="container-fluid m-2">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/content/DA/addDA.html">Add</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/content/addDistrictAssignments.html">Edit</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Delete</a>
+        </li>
+      </ul>
+    </div>
+    <div class="container-fluid m-2">
+      <form id="addDAForm">
+        <div class="form-row">
+          <div class="form-group col-2">
+            <label for="groupType">Group</label>
+            <select id="groupType" class="form-control form-control-sm">
+              <option value="state">State</option>
+              <option value="district">District</option>
+              <option value="complexArea">Complex Area</option>
+              <option value="complex">Complex</option>
+            </select>
+          </div>
+          <div class="form-group col-4">
+            <label for="group">Location</label>
+            <select id="group" class="form-control form-control-sm" disabled>
+              <option value='all'>All Schools</option>
+            </select>
+          </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="elementary" checked>
+                <label class="form-check-label" for="elementary">Elementary</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="secondary" checked>
+              <label class="form-check-label" for="secondary">Secondary</label>
+            </div>
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="checkbox" id="charters">
+              <label class="form-check-label" for="charters">Charters</label>
+            </div>  
+          </div>
+        <div class="form-row">
+          <div class="form-group col-md-2">
+            <label for="startDate">Start Date</label>
+            <input type="date" class="form-control form-control-sm" id="startDate">
+          </div>
+          <div class="form-group col-md-2">
+            <label for="endDate">End Date</label>
+            <input type="date" class="form-control form-control-sm" id="endDate">
+          </div>
+          <div class="form-group col-md-2">
+            <label for="titleCode">Title</label>
+            <select class="form-control form-control-sm" id="titleCode">
+              <option></option>
+              <option value="1">Elementary Principal</option>
+              <option value="2">Secondary Principal</option>
+              <option value="3">School Staff</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="type">Type</label>
+            <select class="form-control form-control-sm" id="type">
+              <option></option>
+              <option value="01">01: Administrative</option>
+              <option value="02">02: Certified</option>
+              <option value="03">03: Classified</option>
+            </select>
+          </div>
+          <div class="form-group col-md-2">
+            <label for="fte">FTE</label>
+            <input type="number" class="form-control form-control-sm" id="fte">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="teacher">
+            <label class="form-check-label" for="teacher">Teacher</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="specialEd">
+            <label class="form-check-label" for="specialEd">Special Ed</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="program">
+            <label class="form-check-label" for="program">Program</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="behavior">
+            <label class="form-check-label" for="behavior">Behavior Admin</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="health">
+            <label class="form-check-label" for="health">Health</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="responseApprover">
+            <label class="form-check-label" for="responseApprover">Behavior Response Approver</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="rti">
+            <label class="form-check-label" for="rti">Response to Intervention</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="advisor">
+            <label class="form-check-label" for="advisor">Advisor</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="supervisor">
+            <label class="form-check-label" for="supervisor">Supervisor</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="counselor">
+            <label class="form-check-label" for="counselor">Counselor</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="foodservice">
+            <label class="form-check-label" for="foodservice">Foodservice</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="excludeReferral">
+            <label class="form-check-label" for="excludeReferral">Exclude Behavior Referral</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="approver">
+            <label class="form-check-label" for="approver">Self Service Approver</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="framProcessor">
+            <label class="form-check-label" for="framProcessor">FRAM Processor</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="activity">
+            <label class="form-check-label" for="activity">Activity Staff</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="activityPreapprover">
+            <label class="form-check-label" for="activityPreapprover">Activity Preapproval</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="externalLMSExclude">
+            <label class="form-check-label" for="externalLMSExclude">External LMS Exclude</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="exclude">
+            <label class="form-check-label" for="exclude">Exclude</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" id="status_555_">
+            <label class="form-check-label" for="status_555_">HLIP</label>
+          </div>
+        </div>
+        <div class="form-row my-2">
+          <button type="submit" class="btn btn-primary">Start</button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
