@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert("Selected parameters results in 0 schools");
                 return;
             }
-            chrome.tabs.sendMessage(activeTab.id, {booleanForm, valueForm, schools});
+            chrome.tabs.sendMessage(activeTab.id, {oper: "addDA", booleanForm, valueForm, schools});
         });
     });
 

@@ -9,10 +9,11 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/content.js"],
+      "js": ["scripts/addDAcontent.js"],
       "run_at": "document_end",
       "matches": [
-        "https://hawaii.infinitecampus.org/*"
+        "https://hawaii.infinitecampus.org/sandbox/sis/campus-tools/district-assignments*",
+        "https://hawaii.infinitecampus.org/campus/sis/campus-tools/district-assignments*"
       ]
     }
   ],
