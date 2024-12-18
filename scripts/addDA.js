@@ -121,12 +121,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
             let activeTab = tabs[0];
-            let schools = getFilteredSchools()
-            if (schools.length < 1) {
+            let filteredSchools = getFilteredSchools()
+            if (filteredSchools.length < 1) {
                 alert("Selected parameters results in 0 schools");
                 return;
             }
-            chrome.tabs.sendMessage(activeTab.id, {oper: "addDA", booleanForm, valueForm, schools});
+            chrome.tabs.sendMessage(activeTab.id, {oper: "addDA", booleanForm, valueForm, schools: filteredSchools});
         });
     });
 
