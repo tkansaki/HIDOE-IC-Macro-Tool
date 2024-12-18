@@ -19,9 +19,14 @@ function simulateClick(element) {
 function parseTitle(title) {
   let splitTitle = title.split('(');
   let name = splitTitle[0].trim();
+  
   let period = "";
   if (splitTitle[1]) {
     period = splitTitle[1].replaceAll(')', '');
+  }
+  if (name.startsWith("SS ")) {
+    name = name.replaceAll("SS ", "");
+    period = "SS";
   }
   return { name, period };
 }
@@ -71,7 +76,7 @@ function isInSchoolList(schools, name) {
   return returnValue;
 }
 
-function addCalendar(schools, future, previous) {
+function addCalendar(schools, current, future, previous, SS) {
   const mainDoc = document.getElementById("main-workspace");
   const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
   let success = new Array(schools.length);
@@ -84,11 +89,13 @@ function addCalendar(schools, future, previous) {
     let inSchoolList = isInSchoolList(schools, parsedTitle.name);
     if (inSchoolList >= 0) {
       success[inSchoolList] = true;
-      if (future && parseTitle.period == "future") {
+      if (future && parsedTitle.period == "future") {
         simulateClick(roles[i]);
-      } else if (previous && parseTitle.period == "previous") {
+      } else if (previous && parsedTitle.period == "previous") {
         simulateClick(roles[i]);
-      } else if (parsedTitle.period == "") {
+      } else if (current && parsedTitle.period == "") {
+        simulateClick(roles[i]);
+      } else if (SS && parsedTitle.period == "SS") {
         simulateClick(roles[i]);
       }
     }
@@ -114,7 +121,7 @@ function addCalendar(schools, future, previous) {
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.oper == "addCalendar") {
-      addCalendar(request.schools, request.future, request.previous);
+      addCalendar(request.schools, request.current, request.future, request.previous, request.SS);
     }
   }
 );
