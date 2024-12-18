@@ -27,11 +27,36 @@ function parseTitle(title) {
 }
 
 function schoolMatch (school, name) {
-  let returnValue = school.schoolName.includes(name);
-  for (let i = 0; i < school.alias.length; i++) {
-    if (school.alias[i].includes(name)) {
-      returnValue = true;
+  let index = school.schoolName.indexOf(name);
+  let returnValue = false;
+  if (index >= 0) {
+    if (index != 0) {
+      if (school.schoolName.charAt(index - 1) != " ") {
+        index = -1;
+      }
     }
+    if ((index + name.length) < school.schoolName.length) {
+      if (school.schoolName.charAt(index + name.length) != " ") {
+        index = -1;
+      }
+    }
+  }
+  returnValue = index >= 0;
+  for (let i = 0; i < school.alias.length; i++) {
+    index = school.alias[i].indexOf(name);
+    if (index >= 0) {
+      if (index != 0) {
+        if (school.alias[i].charAt(index - 1) != " ") {
+          index = -1;
+        }
+      }
+      if ((index + name.length) < school.alias[i].length) {
+        if (school.alias[i].charAt(index + name.length) != " ") {
+          index = -1;
+        }
+      }
+    }
+    if (index >= 0) returnValue = true;
   }
   return returnValue;
 }
@@ -93,52 +118,3 @@ chrome.runtime.onMessage.addListener(
     }
   }
 );
-
-/*
-Closed Halau Lokahi - PCS
-Connections - PCS
-Hakipuu Academy - PCS
-Halau Ku Mana - PCS
-Hana High & Elem School
-Hawaii Technology Academy-PCS
-HI Academy of Arts & Sci - PCS
-HI School for the Deaf & Blind
-Honokaa High & Inter School
-Ka Umeke Kaeo - PCS
-Ka Waihona O Ka Naauao-PCS
-Kahuku High & Inter School
-Kamaile Academy - PCS
-Kamalani Academy - PCS
-Kanu O Ka Aina - PCS
-Kaohao Public Charter School - PCS
-Kapolei Charter School - PCS
-Kau Learning Academy
-Kawaikini - PCS
-Ke Ana Laahana - PCS
-Ke Kula Niihau O Kekaha - LPCS
-Ke Kula O Nawahiokalaniopuu Iki - PCS
-Kona Pacific - PCS
-Kua O Ka La - NCPCS
-Kualapuu Elem School - PCS
-Kula Aupuni Niihau - PCS
-Kulia Academy - PCS
-Laupahoehoe Community - PCS
-Malama Honua - PCS
-Na Wai Ola - PCS
-Nanakuli High & Inter School
-Olomana School
-Pahoa High & Inter School
-Parkway Village Preschool - PCS
-Pearl City High School
-School Closed Jefferson Ortho
-School Closed Liliuokalani
-School Closed Wailupe
-SEEQS - PCS
-Volcano School of Arts & Sci - PCS
-Voyager - PCS
-Waialae Elem School - PCS
-Waialua High & Inter School
-Waimea Canyon School
-Waimea Middle School- PCS
-West Hawaii Explorations -PCS
-*/
