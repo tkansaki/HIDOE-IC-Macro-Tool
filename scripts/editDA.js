@@ -194,6 +194,28 @@ function addField(id) {
     fields.appendChild(newField);
 }
 
+function getMatchValues() {
+    let returnValue = {};
+    fieldElements.get("matchFields").forEach(function (value, key, map) {
+        returnValue[value] = key.querySelector(`[id="${value}"]`).value;
+        if (returnValue[value] == 'on') {
+            returnValue[value] = key.querySelector(`[id="${value}"]`).checked;
+        }
+    });
+    return returnValue;
+}
+
+function getSetValues() {
+    let returnValue = {};
+    fieldElements.get("setFields").forEach(function (value, key, map) {
+        returnValue[value] = key.querySelector(`[id="${value}"]`).value;
+        if (returnValue[value] == 'on') {
+            returnValue[value] = key.querySelector(`[id="${value}"]`).checked;
+        }
+    });
+    return returnValue;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     let editDAForm = document.getElementById('editDAForm');
     let groupType = document.getElementById('groupType');
@@ -206,12 +228,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
             let activeTab = tabs[0];
-            let filteredSchools = getFilteredSchools()
+            let cont = true;
+            let filteredSchools = getFilteredSchools();
+            let matchValues = getMatchValues();
+            let setValues = getSetValues();
+
             if (filteredSchools.length < 1) {
                 alert("Selected parameters results in 0 schools");
                 return;
             }
-            chrome.tabs.sendMessage(activeTab.id, {oper: "editDA", schools: filteredSchools});
+
+            if (Object.keys(setValues).length === 0) {
+                alert("No values have been selected to change");
+                return
+            }
+
+            if (Object.keys(matchValues).length === 0) {
+                cont = confirm("No values have been selected to match. This will result in all district assignments being changed.\n\nContinue?");
+            }
+
+            if (cont) {
+                chrome.tabs.sendMessage(activeTab.id, {oper: "editDA", schools: filteredSchools, matchValues, setValues});
+            }
         });
     });
 

@@ -255,6 +255,8 @@ chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.oper == "addDA") {
       addDA(request.schools, request.valueForm, request.booleanForm);
+    } else if (request.oper == "editDA") {
+      console.log(request.matchValues);
     }
   }
 );
