@@ -2,42 +2,8 @@ import schools from "./schools.js"
 import { districts, complexAreas, complexes} from "./groups.js"
 
 let mode = "state";
-let availableMatchFields = [
-    {id: "startDate", name: "Start Date", disabled: false, html: `<input type="date" class="form-control form-control-sm" id="startDate">`},
-    {id: "endDate", name: "End Date", disabled: false, html: `<input type="date" class="form-control form-control-sm" id="endDate">`},
-    {id: "titleCode", name: "Title", disabled: false, html: `<select class="form-control form-control-sm" id="titleCode">
-              <option></option>
-              <option value="1">Elementary Principal</option>
-              <option value="2">Secondary Principal</option>
-              <option value="3">School Staff</option>
-            </select>`},
-    {id: "type", name: "Type", disabled: false, html: `<select class="form-control form-control-sm" id="type">
-              <option></option>
-              <option value="01">01: Administrative</option>
-              <option value="02">02: Certified</option>
-              <option value="03">03: Classified</option>
-            </select>`},
-    {id: "fte", name: "FTE", disabled: false, html: `<input type="number" class="form-control form-control-sm" id="fte">`},
-    {id: "teacher", name: "Teacher", disabled: false, html: `<input class="form-check-input" type="checkbox" id="teacher">`},
-    {id: "specialEd", name: "Special Ed", disabled: false, html: `<input class="form-check-input" type="checkbox" id="specialEd">`},
-    {id: "program", name: "Program", disabled: false, html: `<input class="form-check-input" type="checkbox" id="program">`},
-    {id: "behavior", name: "Behavior Admin", disabled: false, html: `<input class="form-check-input" type="checkbox" id="behavior">`},
-    {id: "health", name: "Health", disabled: false, html: `<input class="form-check-input" type="checkbox" id="health">`},
-    {id: "responseApprover", name: "Behavior Response Approver", disabled: false, html: `<input class="form-check-input" type="checkbox" id="responseApprover">`},
-    {id: "rti", name: "Response to Intervention", disabled: false, html: `<input class="form-check-input" type="checkbox" id="rti">`},
-    {id: "advisor", name: "Advisor", disabled: false, html: `<input class="form-check-input" type="checkbox" id="advisor">`},
-    {id: "supervisor", name: "Supervisor", disabled: false, html: `<input class="form-check-input" type="checkbox" id="supervisor">`},
-    {id: "counselor", name: "Counselor", disabled: false, html: `<input class="form-check-input" type="checkbox" id="counselor">`},
-    {id: "foodservice", name: "Foodservice", disabled: false, html: `<input class="form-check-input" type="checkbox" id="foodservice">`},
-    {id: "excludeReferral", name: "Exclude Behavior Referral", disabled: false, html: `<input class="form-check-input" type="checkbox" id="excludeReferral">`},
-    {id: "approver", name: "Self Service Approver", disabled: false, html: `<input class="form-check-input" type="checkbox" id="approver">`},
-    {id: "framProcessor", name: "FRAM Processor", disabled: false, html: `<input class="form-check-input" type="checkbox" id="framProcessor">`},
-    {id: "activity", name: "Activity Staff", disabled: false, html: `<input class="form-check-input" type="checkbox" id="activity">`},
-    {id: "activityPreapprover", name: "Activity Preapproval", disabled: false, html: `<input class="form-check-input" type="checkbox" id="activityPreapprover">`},
-    {id: "externalLMSExclude", name: "External LMS Exclude", disabled: false, html: `<input class="form-check-input" type="checkbox" id="externalLMSExclude">`},
-    {id: "exclude", name: "Exclude", disabled: false, html: `<input class="form-check-input" type="checkbox" id="exclude">`},
-    {id: "status_555_", name: "HLIP", disabled: false, html: `<input class="form-check-input" type="checkbox" id="status_555_">`}
-]
+let availableFields = new Map();
+let fieldElements = new Map();
 
 function getOptions() {
     let list;
@@ -106,6 +72,81 @@ function getFilteredSchools() {
     return filteredSchools;
 }
 
+function initialize() {
+    let temp = [];
+    for (let i = 0; i < 2; i++) {
+        let map = new Map();
+        map.set("startDate", {name: "Start Date", disabled: false, html: `<input type="date" class="form-control form-control-sm" id="startDate">`});
+        map.set("endDate", {name: "End Date", disabled: false, html: `<input type="date" class="form-control form-control-sm" id="endDate">`});
+        map.set("titleCode", {name: "Title", disabled: false, html: `<select class="form-control form-control-sm" id="titleCode">
+                  <option></option>
+                  <option value="1">Elementary Principal</option>
+                  <option value="2">Secondary Principal</option>
+                  <option value="3">School Staff</option>
+                </select>`});
+        map.set("type", {name: "Type", disabled: false, html: `<select class="form-control form-control-sm" id="type">
+                  <option></option>
+                  <option value="01">01: Administrative</option>
+                  <option value="02">02: Certified</option>
+                  <option value="03">03: Classified</option>
+                </select>`});
+        map.set("fte", {name: "FTE", disabled: false, html: `<input type="number" class="form-control form-control-sm" id="fte">`});
+        map.set("teacher", {name: "Teacher", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="teacher">`});
+        map.set("specialEd", {name: "Special Ed", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="specialEd">`});
+        map.set("program", {name: "Program", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="program">`});
+        map.set("behavior", {name: "Behavior Admin", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="behavior">`});
+        map.set("health", {name: "Health", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="health">`});
+        map.set("responseApprover", {name: "Behavior Response Approver", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="responseApprover">`});
+        map.set("rti", {name: "Response to Intervention", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="rti">`});
+        map.set("advisor", {name: "Advisor", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="advisor">`});
+        map.set("supervisor", {name: "Supervisor", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="supervisor">`});
+        map.set("counselor", {name: "Counselor", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="counselor">`});
+        map.set("foodservice", {name: "Foodservice", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="foodservice">`});
+        map.set("excludeReferral", {name: "Exclude Behavior Referral", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="excludeReferral">`});
+        map.set("approver", {name: "Self Service Approver", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="approver">`});
+        map.set("framProcessor", {name: "FRAM Processor", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="framProcessor">`});
+        map.set("activity", {name: "Activity Staff", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="activity">`});
+        map.set("activityPreapprover", {name: "Activity Preapproval", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="activityPreapprover">`});
+        map.set("externalLMSExclude", {name: "External LMS Exclude", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="externalLMSExclude">`});
+        map.set("exclude", {name: "Exclude", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="exclude">`});
+        map.set("status_555_", {name: "HLIP", disabled: false, html: `<input class="form-control form-control-sm" type="checkbox" id="status_555_">`});
+        temp.push(map);
+    }
+    availableFields.set("matchFields", temp[0])
+    availableFields.set("setFields", temp[1])
+    fieldElements.set("matchFields", new Map());
+    fieldElements.set("setFields", new Map());
+}
+
+function addOptions(selectElement, availableFields) {
+    selectElement.innerHTML = `<option></option>`;
+    availableFields.forEach(function (value, key, map) {
+        let attr = "";
+        if (value.disabled) {
+            attr = "disabled";
+        }
+        selectElement.innerHTML += `<option value="${key}" ${attr}>${value.name}</option>`;
+    })
+}
+
+function updateOptions(selectElement, availableFields) {
+    availableFields.forEach(function (value, key, map) { 
+        selectElement.querySelector(`option[value="${key}"]`).disabled = value.disabled;
+    })
+}
+
+function updateAvailable(id, key, disabled) {
+    if (key) {
+        availableFields.get(id).get(key).disabled = disabled;
+    }
+}
+
+function updateAllOptions(id) {
+    fieldElements.get(id).forEach(function (value, key, map) {
+        updateOptions(key.querySelector('select'), availableFields.get(id));
+    })
+}
+
 
 function addField(id) {
     let fields = document.getElementById(id);
@@ -120,7 +161,7 @@ function addField(id) {
         </button>
         </div>
         <div class="form-group col-5">
-            <select class="form-control form-control-sm"><option>test1</option><option>test2</option></select>
+            <select class="form-control form-control-sm"></select>
         </div>
         <div class="form-group col-6 inputFieldContainer">
             <input type="text" class="form-control form-control-sm" disabled>
@@ -130,13 +171,26 @@ function addField(id) {
     let selectField = newField.querySelector('select');
     let inputFieldContainer = newField.getElementsByClassName('inputFieldContainer')[0];
 
+
+    addOptions(selectField, availableFields.get(id));
+
     removeButton.addEventListener('click', function() {
+        let currentValue = fieldElements.get(id).get(newField);
+        fieldElements.get(id).delete(newField);
+        updateAvailable(id, currentValue, false);
+        updateAllOptions(id);
         newField.remove();
     })
 
     selectField.addEventListener('change', function() {
-        inputFieldContainer.innerHTML = `<input type="text" class="form-control form-control-sm">`
+        let currentValue = fieldElements.get(id).get(newField);
+        fieldElements.get(id).set(newField, selectField.value);
+        updateAvailable(id, currentValue, false);
+        updateAvailable(id, selectField.value, true);
+        updateAllOptions(id);
+        inputFieldContainer.innerHTML = availableFields.get(id).get(selectField.value).html;
     })
+    fieldElements.get(id).set(newField, "");
     fields.appendChild(newField);
 }
 
@@ -144,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let editDAForm = document.getElementById('editDAForm');
     let groupType = document.getElementById('groupType');
     let group = document.getElementById('group');
+
+    initialize();
 
     editDAForm.addEventListener('submit', function(event) {
         event.preventDefault();
