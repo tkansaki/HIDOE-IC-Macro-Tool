@@ -129,6 +129,41 @@ function pressNew(resolve) {
   }, 100);
 }
 
+function pressDelete(resolve) {
+  const timer = setInterval(() => {
+    try {
+      const mainDoc = document.getElementById('main-workspace');
+      const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+      const innerEl = innerDoc.getElementById('frameWorkspace');
+      const innerDoc2 = innerEl.contentDocument || innerEl.contentWindow.document;
+      const innerEl2 = innerDoc2.getElementById('frameWorkspaceWrapper');
+      const innerDoc3 = innerEl2.contentDocument || innerEl2.contentWindow.document;
+      const innerEl3 = innerDoc3.getElementById('frameWorkspaceHeader');
+      const innerDoc4 = innerEl3.contentDocument || innerEl3.contentWindow.document;
+
+      if(innerDoc4) {
+        let deleteButton = innerDoc4.getElementById('deleteDiv');
+        if (deleteButton) {
+          let funcText = deleteButton.outerHTML.split('href="javascript: ')[1].split('\">')[0];
+          innerDoc4.getElementById('actionbarDiv').innerHTML += `<input id='tempDelete' style='display: none;' onkeydown="(function(){const tempDelete = document.getElementById('tempDelete');try{tempDelete.dataset.state = '1';${funcText};tempDelete.dataset.state = '2';}catch(e){tempDelete.dataset.state = '0';}} )()" data-state='0'  />`;
+          tempDelete = innerDoc4.getElementById('tempDelete');
+          if (tempDelete.dataset.state == "0") {
+            tempDelete.dispatchEvent(new KeyboardEvent('keydown', {'key': 'a'}));
+          }
+
+          if (tempDelete.dataset.state == "2") {
+            clearTimeout(timer);
+            tempDelete.remove();
+            resolve();
+          }
+        }
+      }
+    } catch(error) {
+      console.log(error);
+    }
+  }, 100);
+}
+
 function fillForm(school, values, resolve) {
     const timer = setInterval(() => {
     try {
@@ -254,7 +289,7 @@ function checkIfSaved(resolve) {
     } catch (e){
       console.log(e);
     }
-  }, 1000);
+  }, 100);
 }
 
 function getAllDA() {
@@ -357,6 +392,39 @@ function waitForChange(id, resolve) {
   }, 100);
 }
 
+function waitForDelete(resolve) {
+  let i = 0;
+  const timer = setInterval(() => {
+    try {
+      const mainDoc = document.getElementById('main-workspace');
+      const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+      const innerEl = innerDoc.getElementById('frameWorkspace');
+      const innerDoc2 = innerEl.contentDocument || innerEl.contentWindow.document;
+      const innerEl2 = innerDoc2.getElementById('frameWorkspaceWrapper');
+      const innerDoc3 = innerEl2.contentDocument || innerEl2.contentWindow.document;
+      const innerEl3 = innerDoc3.getElementById('frameWorkspaceDetail');
+      const innerDoc4 = innerEl3.contentDocument || innerEl3.contentWindow.document;
+      const innerEl4 = innerDoc4.getElementById('detailFrame');
+      const innerDoc5 = innerEl4.contentDocument || innerEl4.contentWindow.document;
+
+      if (!innerDoc5.querySelector('body.detail')) {
+        clearTimeout(timer);
+        resolve(true);
+        return;
+      }
+
+      if (i > 30) {
+        clearTimeout(timer);
+        resolve(false);
+        return;
+      }
+      i++;
+    } catch (e){
+      console.log(e);
+    }
+  }, 100);
+}
+
 function isInDAList(element, DAList) {
   let id = element.outerHTML.split('assignmentID=')[1].split('\\')[0];
   if (DAList.get(id)){
@@ -423,7 +491,7 @@ async function editDA(schools, matchValues, setValues) {
     let DAList = getAllDA();
     let currentID = "";
     simulateClick(DAList[0]);
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     for (let i = 0; i < DAList.length; i++) {
       DAList = getAllDA();
       let cancel = false;
@@ -479,20 +547,90 @@ async function editDA(schools, matchValues, setValues) {
       failed.forEach(function (value, key, map) {
         msg += `${value}: ${key.schoolName}\n`;
       });
-      alert(`Failed to edit Schools:\n\n${msg}`);
+      alert(`Failed to edit District Assignments for:\n\n${msg}`);
     } else {
-      alert("Successfully completed editing all schools");
+      alert("Successfully completed editing all District Assignments");
+    }
+  }
+}
+
+async function deleteDA(schools, values) {
+  if (schools && values) {
+    let failed = new Map();
+    let checkedDAList = new Map();
+    let DAList = getAllDA();
+    let currentID = "";
+    simulateClick(DAList[0]);
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    for (let i = 0; i < DAList.length; i++) {
+      DAList = getAllDA();
+      let cancel = false;
+      let repeat = false;
+      let school;
+      if (i > 0) {
+        if (!isInDAList(DAList[i - 1], checkedDAList)) {
+          i--;
+        }
+      }
+      if (isInDAList(DAList[i], checkedDAList)) {
+        continue;
+      }
+      simulateClick(DAList[i]);
+      await new Promise((resolve) => waitForChange(currentID, resolve)).then(function (id) {
+        currentID = id;
+        checkedDAList.set(id, true);
+      });
+      await new Promise((resolve) => waitForFormLoad(values, resolve));
+      await new Promise((resolve) => checkMatch(values, schools, resolve)).then(function(matchSchool) {
+        if (matchSchool) {
+          school = matchSchool;
+        } else {
+          cancel = true;
+        }
+      });
+      if (!cancel) {
+        await new Promise((resolve) => pressDelete(resolve));
+        await new Promise((resolve) => waitForDelete(resolve)).then(function(success) {
+          if (!success) {
+            repeat = true
+          }
+        });
+        if (repeat) {
+          await new Promise((resolve) => pressDelete(resolve));
+          await new Promise((resolve) => waitForDelete(resolve)).then(function(success) {
+            if (!success) {
+              if (failed.get(school)) {
+                failed.set(school, failed.get(school) + 1);
+              } else {
+                failed.set(school, 1);
+              }
+            }
+          });
+        }
+      }
+    }
+    if (failed.size > 0) {
+      let msg = "";
+      failed.forEach(function (value, key, map) {
+        msg += `${value}: ${key.schoolName}\n`;
+      });
+      alert(`Failed to delete for Schools:\n\n${msg}`);
+    } else {
+      alert("Successfully completed deleting all District Assignments");
     }
   }
 }
 
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
+    console.log(request.oper);
     if (request.oper == "addDA") {
       addDA(request.schools, request.values);
     } else if (request.oper == "editDA") {
-      console.log(request.setValues);
       editDA(request.schools, request.matchValues, request.setValues);
+    } else if (request.oper == "deleteDA") {
+      console.log(request.matchValues);
+      deleteDA(request.schools, request.matchValues);
     }
   }
 );
