@@ -132,10 +132,68 @@ function addCalendar(schools, current, future, previous, SS) {
   }
 }
 
+function removeCalendar(schools, current, future, previous, SS) {
+  try {
+    const mainDoc = document.getElementById("main-workspace");
+    const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+    let success = new Array(schools.length);
+    //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
+    //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
+    let numSelectedRoles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]').length;
+    const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+    for (let i = 0; i < roles.length; i++) {
+      let title = roles[i].textContent;
+      let parsedTitle = parseTitle(title);
+      let inSchoolList = isInSchoolList(schools, parsedTitle.name);
+      if (inSchoolList >= 0) {
+        success[inSchoolList] = true;
+        if (future && parsedTitle.period == "future") {
+          simulateClick(roles[i]);
+          numSelectedRoles++;
+        } else if (previous && parsedTitle.period == "previous") {
+          simulateClick(roles[i]);
+          numSelectedRoles++;
+        } else if (current && parsedTitle.period == "") {
+          simulateClick(roles[i]);
+          numSelectedRoles++;
+        } else if (SS && parsedTitle.period == "SS") {
+          simulateClick(roles[i]);
+          numSelectedRoles++;
+        }
+      }
+    }
+    let failed = [];
+    for (let i = 0; i < schools.length; i++) {
+      if (!success[i]) {
+        failed.push(schools[i]);
+      }
+    }
+    const timer = setInterval(() => {
+      let currentLength = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]').length;
+      if (currentLength >= numSelectedRoles) {
+        clearTimeout(timer);
+        if (failed.length > 0) {
+          let msg = "";
+          for (let i = 0; i < failed.length; i++) {
+            msg += `${failed[i].schoolName}\n`
+          }
+          alert(`Failed to find schools: \n\n${msg}`);
+        } else {
+          alert("Completed adding all calendars.");
+        }
+      }
+    }, 250);
+  } catch (e) {
+    alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+  }
+}
+
 chrome.runtime.onMessage.addListener(
   function(request, sender, sendResponse) {
     if (request.oper == "addCalendar") {
       addCalendar(request.schools, request.current, request.future, request.previous, request.SS);
+    } else if (request.oper == "removeCalendar") {
+      removeCalendar(request.schools, request.current, request.future, request.previous, request.SS);
     }
   }
 );
