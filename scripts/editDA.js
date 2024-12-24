@@ -197,9 +197,17 @@ function addField(id) {
 function getMatchValues() {
     let returnValue = {};
     fieldElements.get("matchFields").forEach(function (value, key, map) {
-        returnValue[value] = key.querySelector(`[id="${value}"]`).value;
-        if (returnValue[value] == 'on') {
-            returnValue[value] = key.querySelector(`[id="${value}"]`).checked;
+        let field = key.querySelector(`[id="${value}"]`);
+        if (field.type == 'checkbox') {
+            returnValue[value] = field.checked;
+        } else if (field.type == 'date') {
+            try {
+                returnValue[value] = field.valueAsDate.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
+            } catch (e) {
+                returnValue[value] = "";
+            }
+        } else {
+            returnValue[value] = field.value;
         }
     });
     return returnValue;
@@ -208,9 +216,17 @@ function getMatchValues() {
 function getSetValues() {
     let returnValue = {};
     fieldElements.get("setFields").forEach(function (value, key, map) {
-        returnValue[value] = key.querySelector(`[id="${value}"]`).value;
-        if (returnValue[value] == 'on') {
-            returnValue[value] = key.querySelector(`[id="${value}"]`).checked;
+        let field = key.querySelector(`[id="${value}"]`);
+        if (field.type == 'checkbox') {
+            returnValue[value] = field.checked;
+        } else if (field.type == 'date') {
+            try {
+                returnValue[value] = field.valueAsDate.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
+            } catch (e) {
+                returnValue[value] = "";
+            }
+        } else {
+            returnValue[value] = field.value;
         }
     });
     return returnValue;

@@ -115,9 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
         let exclude = document.getElementById('exclude').checked;
         let status_555_ = document.getElementById('status_555_').checked;
 
-        let valueForm = {startDate, endDate, titleCode, type, fte}
-        let booleanForm = {teacher, specialEd, program, behavior, health, responseApprover, rti, advisor, supervisor, counselor, foodservice,
-        excludeReferral, approver, framProcessor, activity, activityPreapprover, externalLMSExclude, exclude, status_555_}
+        let values = {teacher, specialEd, program, behavior, health, responseApprover, rti, advisor, supervisor, counselor, foodservice,
+        excludeReferral, approver, framProcessor, activity, activityPreapprover, externalLMSExclude, exclude, status_555_, startDate, endDate, titleCode, type, fte}
 
         chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
             let activeTab = tabs[0];
@@ -126,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert("Selected parameters results in 0 schools");
                 return;
             }
-            chrome.tabs.sendMessage(activeTab.id, {oper: "addDA", booleanForm, valueForm, schools: filteredSchools});
+            chrome.tabs.sendMessage(activeTab.id, {oper: "addDA", values, schools: filteredSchools});
         });
     });
 
