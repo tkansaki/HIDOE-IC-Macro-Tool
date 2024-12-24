@@ -477,9 +477,9 @@ async function addDA(schools, values) {
       for (let i = 0; i < notAdded.length; i++) {
         msg += `${notAdded[i].schoolName}\n`;
       }
-      alert(`Failed to add Schools:\n\n${msg}`);
+      setTimeout(function() {alert(`Failed to add District Assignments for schools:\n\n${msg}`)}, 1000);
     } else {
-      alert("Successfully completed adding all schools");
+      setTimeout(function() {alert("Successfully completed adding all District Assignments")}, 1000);
     }
   }
 }
@@ -547,9 +547,9 @@ async function editDA(schools, matchValues, setValues) {
       failed.forEach(function (value, key, map) {
         msg += `${value}: ${key.schoolName}\n`;
       });
-      alert(`Failed to edit District Assignments for:\n\n${msg}`);
+      setTimeout(function() {alert(`Failed to edit District Assignments for schools:\n\n${msg}`)}, 1000);
     } else {
-      alert("Successfully completed editing all District Assignments");
+      setTimeout(function() {alert("Successfully completed editing all District Assignments")}, 1000);
     }
   }
 }
@@ -614,9 +614,9 @@ async function deleteDA(schools, values) {
       failed.forEach(function (value, key, map) {
         msg += `${value}: ${key.schoolName}\n`;
       });
-      alert(`Failed to delete for Schools:\n\n${msg}`);
+      setTimeout(function() {alert(`Failed to delete District Assignments for schools:\n\n${msg}`)}, 1000);
     } else {
-      alert("Successfully completed deleting all District Assignments");
+      setTimeout(function() {alert("Successfully completed deleting all District Assignments")}, 1000);
     }
   }
 }
