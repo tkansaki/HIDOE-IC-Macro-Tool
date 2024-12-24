@@ -80,13 +80,13 @@ document.addEventListener('DOMContentLoaded', function() {
         let startDate;
         let endDate;
         try {
-            startDate = document.getElementById('startDate').valueAsDate.toLocaleString().split(',')[0];
+            startDate = document.getElementById('startDate').valueAsDate.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
         } catch (e) {
             alert("Infinite Campus requires a valid start date");
             return;
         }
         try {
-            endDate = document.getElementById('endDate').valueAsDate.toLocaleString().split(',')[0];
+            endDate = document.getElementById('endDate').valueAsDate.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
         } catch (e) {
             endDate = "";
             console.log(e);
