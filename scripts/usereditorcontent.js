@@ -121,9 +121,9 @@ function addCalendar(schools, current, future, previous, SS) {
           for (let i = 0; i < failed.length; i++) {
             msg += `${failed[i].schoolName}\n`
           }
-          alert(`Failed to find schools: \n\n${msg}`);
+          setTimeout(function() {alert(`Failed to find schools: \n\n${msg}`)}, 1000); 
         } else {
-          alert("Completed adding all calendars.");
+          setTimeout(function() {alert("Completed adding all calendars.")}, 1000);
         }
       }
     }, 250);
@@ -177,9 +177,9 @@ function removeCalendar(schools, current, future, previous, SS) {
           for (let i = 0; i < failed.length; i++) {
             msg += `${failed[i].schoolName}\n`
           }
-          alert(`Failed to find schools: \n\n${msg}`);
+          setTimeout(function() {alert(`Failed to find schools: \n\n${msg}`)}, 1000); 
         } else {
-          alert("Completed adding all calendars.");
+          setTimeout(function() {alert("Completed removing all calendars.")}, 1000);
         }
       }
     }, 250);
