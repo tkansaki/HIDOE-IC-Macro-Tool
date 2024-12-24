@@ -1,5 +1,9 @@
 import schools from "./schools.js"
-import { districts, complexAreas, complexes} from "./groups.js"
+import {
+    districts,
+    complexAreas,
+    complexes
+} from "./groups.js"
 
 let mode = "state";
 
@@ -70,44 +74,54 @@ function getFilteredSchools() {
     return filteredSchools;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     let removeCalendarForm = document.getElementById('removeCalendarForm');
     let groupType = document.getElementById('groupType');
     let group = document.getElementById('group');
 
-    removeCalendarForm.addEventListener('submit', function(event) {
+    removeCalendarForm.addEventListener('submit', function (event) {
         event.preventDefault();
-        
+
         let current = document.getElementById('current').checked;
         let future = document.getElementById('future').checked;
         let previous = document.getElementById('previous').checked;
         let SS = document.getElementById('SS').checked;
 
-        chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
+        chrome.tabs.query({
+            currentWindow: true,
+            active: true
+        }, function (tabs) {
             let activeTab = tabs[0];
             let filteredSchools = getFilteredSchools()
             if (filteredSchools.length < 1) {
                 alert("Selected parameters results in 0 schools");
                 return;
             }
-            chrome.tabs.sendMessage(activeTab.id, {oper: "removeCalendar", schools: filteredSchools, current, future, previous, SS});
+            chrome.tabs.sendMessage(activeTab.id, {
+                oper: "removeCalendar",
+                schools: filteredSchools,
+                current,
+                future,
+                previous,
+                SS
+            });
         });
     });
 
-    groupType.addEventListener('change', function() {
+    groupType.addEventListener('change', function () {
         if (groupType.value == "district") {
             mode = "district";
             group.disabled = false;
             group.innerHTML = getOptions();
-        }else if (groupType.value == "complexArea") {
+        } else if (groupType.value == "complexArea") {
             mode = "complexArea";
             group.disabled = false;
             group.innerHTML = getOptions();
-        }else if (groupType.value == "complex") {
+        } else if (groupType.value == "complex") {
             mode = "complex";
             group.disabled = false;
             group.innerHTML = getOptions();
-        }else {
+        } else {
             mode = "state";
             group.disabled = true;
             group.innerHTML = "<option value='all'>All Schools</option>";

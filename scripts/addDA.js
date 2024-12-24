@@ -1,5 +1,9 @@
 import schools from "./schools.js"
-import { districts, complexAreas, complexes} from "./groups.js"
+import {
+    districts,
+    complexAreas,
+    complexes
+} from "./groups.js"
 
 let mode = "state";
 
@@ -70,23 +74,27 @@ function getFilteredSchools() {
     return filteredSchools;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     let addDAForm = document.getElementById('addDAForm');
     let groupType = document.getElementById('groupType');
     let group = document.getElementById('group');
 
-    addDAForm.addEventListener('submit', function(event) {
+    addDAForm.addEventListener('submit', function (event) {
         event.preventDefault();
         let startDate;
         let endDate;
         try {
-            startDate = document.getElementById('startDate').valueAsDate.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
+            startDate = document.getElementById('startDate').valueAsDate.toLocaleString('en-US', {
+                timeZone: 'UTC'
+            }).split(',')[0];
         } catch (e) {
             alert("Infinite Campus requires a valid start date");
             return;
         }
         try {
-            endDate = document.getElementById('endDate').valueAsDate.toLocaleString('en-US', { timeZone: 'UTC' }).split(',')[0];
+            endDate = document.getElementById('endDate').valueAsDate.toLocaleString('en-US', {
+                timeZone: 'UTC'
+            }).split(',')[0];
         } catch (e) {
             endDate = "";
             console.log(e);
@@ -115,34 +123,65 @@ document.addEventListener('DOMContentLoaded', function() {
         let exclude = document.getElementById('exclude').checked;
         let status_555_ = document.getElementById('status_555_').checked;
 
-        let values = {teacher, specialEd, program, behavior, health, responseApprover, rti, advisor, supervisor, counselor, foodservice,
-        excludeReferral, approver, framProcessor, activity, activityPreapprover, externalLMSExclude, exclude, status_555_, startDate, endDate, titleCode, type, fte}
+        let values = {
+            teacher,
+            specialEd,
+            program,
+            behavior,
+            health,
+            responseApprover,
+            rti,
+            advisor,
+            supervisor,
+            counselor,
+            foodservice,
+            excludeReferral,
+            approver,
+            framProcessor,
+            activity,
+            activityPreapprover,
+            externalLMSExclude,
+            exclude,
+            status_555_,
+            startDate,
+            endDate,
+            titleCode,
+            type,
+            fte
+        }
 
-        chrome.tabs.query({currentWindow: true, active: true}, function (tabs){
+        chrome.tabs.query({
+            currentWindow: true,
+            active: true
+        }, function (tabs) {
             let activeTab = tabs[0];
             let filteredSchools = getFilteredSchools()
             if (filteredSchools.length < 1) {
                 alert("Selected parameters results in 0 schools");
                 return;
             }
-            chrome.tabs.sendMessage(activeTab.id, {oper: "addDA", values, schools: filteredSchools});
+            chrome.tabs.sendMessage(activeTab.id, {
+                oper: "addDA",
+                values,
+                schools: filteredSchools
+            });
         });
     });
 
-    groupType.addEventListener('change', function() {
+    groupType.addEventListener('change', function () {
         if (groupType.value == "district") {
             mode = "district";
             group.disabled = false;
             group.innerHTML = getOptions();
-        }else if (groupType.value == "complexArea") {
+        } else if (groupType.value == "complexArea") {
             mode = "complexArea";
             group.disabled = false;
             group.innerHTML = getOptions();
-        }else if (groupType.value == "complex") {
+        } else if (groupType.value == "complex") {
             mode = "complex";
             group.disabled = false;
             group.innerHTML = getOptions();
-        }else {
+        } else {
             mode = "state";
             group.disabled = true;
             group.innerHTML = "<option value='all'>All Schools</option>";
