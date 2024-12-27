@@ -14,7 +14,7 @@ function simulateClick(element) {
         triggerMouseEvent(element, "mouseup");
         triggerMouseEvent(element, "click");
     } else {
-        console.log("Element not found");
+        // console.log("Element not found");
     }
 }
 

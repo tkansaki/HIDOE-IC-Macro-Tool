@@ -4,7 +4,6 @@ let addFailed = false;
 alert = function (msg) {
     if (msg.includes("schoolID is required")) {
         addFailed = true;
-        console.log(`Alert Called: ${msg}`);
     } else {
         native_alert(msg);
     }
@@ -37,7 +36,7 @@ function simulateClick(element) {
         triggerMouseEvent(element, "mouseup");
         triggerMouseEvent(element, "click");
     } else {
-        console.log("Element not found");
+        // console.log("Element not found");
     }
 }
 
@@ -57,13 +56,13 @@ function waitForFormLoad(values, resolve) {
 
             for (const [key, value] of Object.entries(values)) {
                 if (!innerDoc5.getElementById(key)) {
-                    throw new Error(`Field '${key}' not loaded`);
+                    return;
                 }
             }
             clearTimeout(timer);
             resolve();
         } catch (e) {
-            console.log(e);
+            // console.log(e);
         }
     }, 100);
 }
@@ -92,7 +91,7 @@ function waitForSchoolPopulate(resolve) {
                 }
             }
         } catch (e) {
-            console.log("Error on waitForSchoolPopulate", e);
+            // console.log("Error on waitForSchoolPopulate", e);
         }
     }, 100);
 }
@@ -128,7 +127,7 @@ function pressNew(resolve) {
                 }
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
         }
     }, 100);
 }
@@ -165,7 +164,7 @@ function pressDelete(resolve) {
                 }
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
         }
     }, 100);
 }
@@ -201,7 +200,7 @@ function fillForm(school, values, resolve) {
             clearTimeout(timer);
             resolve();
         } catch (error) {
-            console.log(error);
+            // console.log(error);
         }
     }, 100);
 }
@@ -227,7 +226,7 @@ function checkSchool(school, resolve) {
             resolve(true);
         }
     } catch (error) {
-        console.log(error);
+        // console.log(error);
     }
 }
 
@@ -268,7 +267,7 @@ function pressSave(resolve) {
                 }
             }
         } catch (error) {
-            console.log(error);
+            // console.log(error);
         }
     }, 100);
 }
@@ -295,7 +294,7 @@ function checkIfSaved(resolve) {
                 resolve(true);
             }
         } catch (e) {
-            console.log(e);
+            // console.log(e);
         }
     }, 100);
 }
@@ -371,7 +370,7 @@ function checkMatch(matchValues, schools, resolve) {
             // console.log(`Match: ${school.schoolName}`);
             resolve(school);
         } catch (error) {
-            console.log(error);
+            // console.log(error);
         }
     }, 100);
 }
@@ -395,7 +394,7 @@ function waitForChange(id, resolve) {
                 resolve(innerDoc5.getElementById('assignmentID').value);
             }
         } catch (e) {
-            console.log(e);
+            // console.log(e);
         }
     }, 100);
 }
@@ -428,7 +427,7 @@ function waitForDelete(resolve) {
             }
             i++;
         } catch (e) {
-            console.log(e);
+            // console.log(e);
         }
     }, 100);
 }
@@ -449,6 +448,7 @@ async function addDA(schools, values) {
             let repeat = false;
             await new Promise((resolve) => pressNew(resolve));
             await new Promise((resolve) => waitForFormLoad(values, resolve));
+            await new Promise((resolve) => waitForFormLoad({schoolID: ""}, resolve));
             await new Promise((resolve) => waitForSchoolPopulate(resolve));
             await new Promise((resolve) => fillForm(schools[i], values, resolve))
             await new Promise((resolve) => checkSchool(schools[i], resolve)).then(function (save) {
@@ -524,6 +524,7 @@ async function editDA(schools, matchValues, setValues) {
             });
             await new Promise((resolve) => waitForFormLoad(matchValues, resolve));
             await new Promise((resolve) => waitForFormLoad(setValues, resolve));
+            await new Promise((resolve) => waitForFormLoad({schoolID: ""}, resolve));
             await new Promise((resolve) => checkMatch(matchValues, schools, resolve)).then(function (matchSchool) {
                 if (matchSchool) {
                     school = matchSchool;
@@ -597,6 +598,7 @@ async function deleteDA(schools, values) {
                 checkedDAList.set(id, true);
             });
             await new Promise((resolve) => waitForFormLoad(values, resolve));
+            await new Promise((resolve) => waitForFormLoad({schoolID: ""}, resolve));
             await new Promise((resolve) => checkMatch(values, schools, resolve)).then(function (matchSchool) {
                 if (matchSchool) {
                     school = matchSchool;
@@ -643,13 +645,11 @@ async function deleteDA(schools, values) {
 
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
-        console.log(request.oper);
         if (request.oper == "addDA") {
             addDA(request.schools, request.values);
         } else if (request.oper == "editDA") {
             editDA(request.schools, request.matchValues, request.setValues);
         } else if (request.oper == "deleteDA") {
-            console.log(request.matchValues);
             deleteDA(request.schools, request.matchValues);
         }
     }
