@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "IC Macro Tool",
   "description": "Automatically assign multiple district assignments in Infinite Campus",
-  "version": "5.2",
+  "version": "6.0",
   "action": {
     "default_popup": "content/popup.html",
     "default_icon": "resources/IC_Icon.png"
