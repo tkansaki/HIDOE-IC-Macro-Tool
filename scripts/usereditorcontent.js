@@ -88,29 +88,38 @@ function addCalendar(schools, current, future, previous, SS) {
         let success = new Array(schools.length);
         //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
         //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        let numSelectedRoles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]').length;
-        const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
-        for (let i = 0; i < roles.length; i++) {
-            let title = roles[i].textContent;
-            let parsedTitle = parseTitle(title);
-            let inSchoolList = isInSchoolList(schools, parsedTitle.name);
-            if (inSchoolList >= 0) {
-                success[inSchoolList] = true;
-                if (future && parsedTitle.period == "future") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
-                } else if (previous && parsedTitle.period == "previous") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
-                } else if (current && parsedTitle.period == "") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
-                } else if (SS && parsedTitle.period == "SS") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
+        let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
+        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the last page"]'));
+        let init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]'));
+            }
+            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                let parsedTitle = parseTitle(title);
+                let inSchoolList = isInSchoolList(schools, parsedTitle.name);
+                if (inSchoolList >= 0) {
+                    success[inSchoolList] = true;
+                    if (future && parsedTitle.period == "future") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    } else if (previous && parsedTitle.period == "previous") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    } else if (current && parsedTitle.period == "") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    } else if (SS && parsedTitle.period == "SS") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    }
                 }
             }
-        }
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').disabled == false)
         let failed = [];
         for (let i = 0; i < schools.length; i++) {
             if (!success[i]) {
@@ -118,7 +127,7 @@ function addCalendar(schools, current, future, previous, SS) {
             }
         }
         const timer = setInterval(() => {
-            let currentLength = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]').length;
+            let currentLength = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
             if (currentLength >= numSelectedRoles) {
                 clearTimeout(timer);
                 if (failed.length > 0) {
@@ -148,29 +157,38 @@ function removeCalendar(schools, current, future, previous, SS) {
         let success = new Array(schools.length);
         //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
         //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        let numSelectedRoles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]').length;
-        const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
-        for (let i = 0; i < roles.length; i++) {
-            let title = roles[i].textContent;
-            let parsedTitle = parseTitle(title);
-            let inSchoolList = isInSchoolList(schools, parsedTitle.name);
-            if (inSchoolList >= 0) {
-                success[inSchoolList] = true;
-                if (future && parsedTitle.period == "future") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
-                } else if (previous && parsedTitle.period == "previous") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
-                } else if (current && parsedTitle.period == "") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
-                } else if (SS && parsedTitle.period == "SS") {
-                    simulateClick(roles[i]);
-                    numSelectedRoles++;
+        let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
+        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
+        let init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
+            }
+            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                let parsedTitle = parseTitle(title);
+                let inSchoolList = isInSchoolList(schools, parsedTitle.name);
+                if (inSchoolList >= 0) {
+                    success[inSchoolList] = true;
+                    if (future && parsedTitle.period == "future") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    } else if (previous && parsedTitle.period == "previous") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    } else if (current && parsedTitle.period == "") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    } else if (SS && parsedTitle.period == "SS") {
+                        simulateClick(roles[i]);
+                        numSelectedRoles++;
+                    }
                 }
             }
-        }
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
         let failed = [];
         for (let i = 0; i < schools.length; i++) {
             if (!success[i]) {
@@ -178,7 +196,7 @@ function removeCalendar(schools, current, future, previous, SS) {
             }
         }
         const timer = setInterval(() => {
-            let currentLength = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]').length;
+            let currentLength = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
             if (currentLength >= numSelectedRoles) {
                 clearTimeout(timer);
                 if (failed.length > 0) {
