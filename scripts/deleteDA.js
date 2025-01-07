@@ -292,7 +292,7 @@ function getMatchValues() {
             returnValue[value] = field.checked;
         } else if (field.type == 'date') {
             try {
-                returnValue[value] = field.valueAsDate.toLocaleString('en-US', {
+                returnValue[value] = field.valueAsDate.toLocaleString('es-PA', {
                     timeZone: 'UTC'
                 }).split(',')[0];
             } catch (e) {
