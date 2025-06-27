@@ -219,12 +219,112 @@ function removeCalendar(schools, current, future, previous, SS) {
     }
 }
 
+function disableUser() {
+    try {
+        const mainDoc = document.getElementById("main-workspace");
+        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+        const disabled = innerDoc.getElementById('disabledRef');
+        const date = innerDoc.querySelector(`[id^='datepicker-']`);
+        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
+        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
+        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
+        //Remove all roles
+        let removedRoles = [];
+        let init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
+            }
+            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                if (!title.includes("*Disabled")) {
+                    simulateClick(roles[i]);
+                    removedRoles.push(title);
+                }
+            }
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
+        //add "*Disabled" role
+        init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]'));
+            }
+            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                if (title.includes("*Disabled")) {
+                    simulateClick(roles[i]);
+                }
+            }
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').disabled == false)
+        // Ensure "disabled" checkbox is checked
+        if (!disabled.checked) {
+            simulateClick(disabled)
+        }
+        // Set "Account Expiration Date" to today.
+        let today = new Date();
+        date.value = "";
+        date.dispatchEvent(new Event('input', { bubbles: true }));
+        let month = `${today.getMonth() + 1}`;
+        let day = `${today.getDate()}`;
+        let year = `${today.getFullYear()}`;
+
+        for (let i = 1; i <= month.length; i++) {
+            date.value = `${month.slice(0, i)}`;
+            date.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        if (month.length <= 1) month = "0" + month;
+        for (let i = 1; i <= day.length; i++) {
+            date.value = `${month}/${day.slice(0, i)}`;
+            date.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        if (day.length <= 1) day = "0" + day;
+        for (let i = 1; i <= year.length; i++) {
+            date.value = `${month}/${day}/${year.slice(0, i)}`;
+            date.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        let rolestr = removedRoles.join("\n");
+
+        setTimeout( async function () {
+            if (confirm(`Copy Removed Roles to Clipboard?/n/n${rolestr}`)) {
+                let tryagain = true;
+                while (tryagain) {
+                    await new Promise((resolve) => setTimeout(resolve, 1000))
+                    try {
+                        navigator.clipboard.writeText(rolestr);
+                        tryagain = false;
+                    } catch (e){
+                        console.log("try again?", e);
+                        if (confirm("Copy to clipboard failed. Try again?")) {
+                            tryagain = true;
+                        } else {
+                            tryagain = false;
+                        }
+                    }
+                }
+            };
+        }, 500);
+    } catch (e) {
+        // console.log(e);
+        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+    }
+}
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.oper == "addCalendar") {
             addCalendar(request.schools, request.current, request.future, request.previous, request.SS);
         } else if (request.oper == "removeCalendar") {
             removeCalendar(request.schools, request.current, request.future, request.previous, request.SS);
+        } else if (request.oper == "disableUser") {
+            disableUser();
         }
     }
 );
