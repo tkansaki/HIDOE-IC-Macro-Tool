@@ -293,7 +293,7 @@ function disableUser() {
         let rolestr = removedRoles.join("\n");
 
         setTimeout( async function () {
-            if (confirm(`Copy Removed Roles to Clipboard?/n/n${rolestr}`)) {
+            if (confirm(`Copy Removed Roles to Clipboard?\n\n${rolestr}`)) {
                 let tryagain = true;
                 while (tryagain) {
                     await new Promise((resolve) => setTimeout(resolve, 1000))
