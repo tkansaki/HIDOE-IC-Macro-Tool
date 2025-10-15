@@ -23,7 +23,26 @@
       </ul>
     </div>
     <div class="container-fluid m-2">
-      <input id="uploadInput" type="file">
+      <div class="row">
+        <div class="col-4">
+          <div class="row">
+            <div class="col" style="overflow-x: hidden;">
+              <input id="uploadInput" type="file" accept=".xlsx, .csv">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <button class="btn btn-primary my-4">Start</button>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="m-2" style="height: 200px; overflow-y: scroll;">
+            <table id="mainTable" class="table table-sm"></table>
+          </div>
+        </div>
+      </div>
     </div>
+
   </body>
 </html>
