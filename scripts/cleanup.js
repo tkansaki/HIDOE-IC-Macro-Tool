@@ -49,6 +49,24 @@ function parseRange(rangeStr) {
 	return {colMin, colMax, rowMin, rowMax};
 }
 
+function setMessage(msg) {
+	document.getElementById("errorMsg").innerHTML = msg;
+	document.getElementById("errorMsg").style.display = "inline";
+}
+
+function clearMessage() {
+	document.getElementById("errorMsg").innerHTML = "";
+	document.getElementById("errorMsg").style.display = "none";
+}
+
+function enableStart() {
+	document.getElementById("startButton").disabled = false;
+}
+
+function disableStart() {
+	document.getElementById("startButton").disabled = true;
+}
+
 async function handleDropAsync(e) {
   e.stopPropagation(); e.preventDefault();
   const f = e.target.files[0];
@@ -56,5 +74,7 @@ async function handleDropAsync(e) {
   const data = await f.arrayBuffer();
   /* data is an ArrayBuffer */
   const workbook = XLSX.read(data);
+  setMessage("all good!!");
+  enableStart();
   printTable(workbook.Sheets["Sheet1"]);
 }
