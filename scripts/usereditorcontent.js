@@ -18,6 +18,81 @@ function simulateClick(element) {
     }
 }
 
+function openSearch() {
+    simulateClick(document.querySelector('button[aria-controls="searchSidebar"][aria-label="Search"]'));
+}
+
+function isSearchOpen() {
+    const select = document.querySelector('kendo-dropdownlist[valuefield="type"][data-cy="tool-context-search-context-dropdown"]');
+    const searchbox = document.getElementById("searchBox");
+    return select && searchbox;
+}
+
+function openSearchTypeOptions() {
+    const select = document.querySelector('kendo-dropdownlist[valuefield="type"][data-cy="tool-context-search-context-dropdown"]');
+    if (select) {
+        simulateClick(select);
+        return true
+    }
+    return false;
+}
+
+function selectSearchType(typeText) {
+    const popup = document.querySelector('kendo-popup[role="region"][aria-label="Options list"]');
+    let match = undefined;
+    if (popup) {
+    const options = popup.querySelectorAll('li[role="option"][kendodropdownsselectable]');
+        if (options) {
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].querySelector('span').innerHTML.localeCompare(typeText) === 0) {
+                    match = options[i];
+                }
+            }
+            simulateClick(match);
+        }
+    }
+    if(match) {
+        return true;
+    }
+    return false;
+}
+
+function checkSearchType(typeText) {
+    const select = document.querySelector('kendo-dropdownlist[valuefield="type"][data-cy="tool-context-search-context-dropdown"]');
+    if (select) {
+        const spanText = select.querySelector('span[class="k-input-value-text"]');
+        if (spanText) {
+            if (spanText.innerHTML.includes(`>${typeText}<`)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function setSearchType(typeText, resolve) {
+    const timer = setInterval(() => {
+        if (isSearchOpen()) {
+            if (checkSearchType(typeText)) {
+                clearTimeout(timer);
+            } else {
+                if (openSearchTypeOptions()) {
+                    if (selectSearchType(typeText)){
+                        resolve();
+                        clearTimeout(timer);
+                    } else {
+                        console.log(`Cannot find type: ${typeText}`)
+                        resolve();
+                        clearTimeout(timer);
+                    }
+                }
+            }
+        } else {
+            openSearch();
+        }
+    }, 250);
+}
+
 function searchUser(eid) {
     document.getElementById("searchBox").value = eid;
     document.getElementById("searchBox").dispatchEvent(new Event('input', { bubbles: true }));
@@ -513,8 +588,13 @@ function download(file) {
 }
 
 async function cleanup(data) {
-    console.log(data)
     let failed = [];
+    if (!isSearchOpen()) {
+        openSearch()
+    }
+    if (!checkSearchType("User")) {
+        await new Promise((resolve) => setSearchType("User", resolve));
+    }
     for (let i = 0; i < data.length; i++) {
         searchUser(data[i].EID);
         let cont = true;
