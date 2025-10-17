@@ -475,23 +475,55 @@ function cleanupDisableUser() {
             date.value = `${month}/${day}/${year.slice(0, i)}`;
             date.dispatchEvent(new Event('input', { bubbles: true }));
         }
-        return removedRoles.join("\n");
+        return removedRoles.join(", ");
     } catch (e) {
         // console.log(e);
         alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
     }
 }
 
+function cleanupDataToCSV(data) {
+    let arr = [];
+    arr.push(`EID,`);
+    arr.push(`First Name,`);
+    arr.push(`Last Name,`);
+    arr.push(`Roles Removed\n`);
+    for (let i = 0; i < data.length; i++) {
+        arr.push(`${data[i].EID},`);
+        arr.push(`${data[i].firstName},`);
+        arr.push(`${data[i].lastName},`);
+        arr.push(`"${data[i].removedRoles}"\n`);
+    }
+    return new File(arr, `cleanup${(new Date()).toLocaleDateString("en-US").replaceAll("/", "")}.csv`, {
+        type: 'text/csv',
+    })
+}
+
+function download(file) {
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(file);
+
+  link.href = url;
+  link.download = file.name;
+  document.body.appendChild(link);
+  link.click();
+
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
+
 async function cleanup(data) {
+    console.log(data)
     let failed = [];
     for (let i = 0; i < data.length; i++) {
         searchUser(data[i].EID);
-        let cont = true
+        let cont = true;
         let searchComplete = false;
         await new Promise((resolve) => waitForSearch(resolve)).then(function (exists) {
             if (!exists) {
-                failed.push(`${data[i].firstName} ${data[i].lastName} (${data[i].EID})`)
-                cont = false
+                failed.push(`${data[i].firstName} ${data[i].lastName} (${data[i].EID})`);
+                data[i].removedRoles = "Failed: Could not find user";
+                cont = false;
             }
         })
         await new Promise((resolve) => setTimeout(resolve, 250))
@@ -499,13 +531,19 @@ async function cleanup(data) {
             simulateClick(findSearchResult(data[i].EID));
             await new Promise((resolve => waitForCorrectFormLoad(data[i].EID, resolve)));
             await new Promise((resolve => waitForRoleLoad(resolve)));
-            await new Promise((resolve) => setTimeout(resolve, 250))
+            await new Promise((resolve) => setTimeout(resolve, 250));
             data[i].removedRoles = cleanupDisableUser();
-            setTimeout(function () {clickSave()}, 800)
+            if (data[i].removedRoles.includes("*INV")) {
+                failed.push(`${data[i].firstName} ${data[i].lastName} (${data[i].EID})`);
+                data[i].removedRoles = "Failed: User has *INV";
+            } else {
+                await new Promise((resolve) => setTimeout(resolve, 800));
+                clickSave();
+            }
         }
-        await new Promise((resolve) => setTimeout(resolve, 2500))
+        await new Promise((resolve) => setTimeout(resolve, 2500));
     }
-    console.log(data);
+    let csvFile = cleanupDataToCSV(data);
     if (failed.length > 0) {
         let msg = "";
         for (let i = 0; i < failed.length; i++) {
@@ -515,6 +553,7 @@ async function cleanup(data) {
     } else {
         alert ("Successfully updated all users");
     }
+    download(csvFile);
 }
 
 chrome.runtime.onMessage.addListener(
