@@ -18,6 +18,93 @@ function simulateClick(element) {
     }
 }
 
+function searchUser(eid) {
+    document.getElementById("searchBox").value = eid;
+    document.getElementById("searchBox").dispatchEvent(new Event('input', { bubbles: true }));
+    document.getElementById("searchBox").dispatchEvent(new KeyboardEvent('keydown', {
+        code: "Enter",
+        key: "Enter",
+        keyCode: 13,
+        type: "keyup"
+    }));
+}
+
+function findSearchResult(eid) {
+    const results = document.getElementsByTagName('ic-user-search-result');
+
+    for (let i = 0; i < results.length; i++) {
+        const buttons = results[i].getElementsByTagName('button');
+        for (let j = 0; j < buttons.length; j++) {
+            if (buttons[j].innerHTML.includes(` ${eid} `)) {
+                return buttons[j];
+            }
+        }
+    }
+    return null;
+}
+
+function clickSave() {
+    const mainDoc = document.getElementById("main-workspace");
+    const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+    const buttons = innerDoc.getElementsByTagName("button");
+    let saveButton;
+    for (let i = 0; i < buttons.length; i++) {
+        if (buttons[i].innerHTML.includes(" Save ")) {
+            saveButton = buttons[i];
+        }
+    }
+    simulateClick(saveButton);
+}
+
+function waitForSearch(resolve) {
+    const timer = setInterval(() => {
+        if (document.getElementsByTagName('ic-user-search-result').length > 0) {
+            clearTimeout(timer);
+            resolve(true);
+        } else if (document.querySelector('div[data-cy="ic-tool-context-search-no-results"]')) {
+            clearTimeout(timer);
+            resolve(false);
+        }
+    }, 250);
+}
+
+function waitForCorrectFormLoad(eid, resolve) {
+    let currentUsernameValue;
+    const timer = setInterval(() => {
+        const mainDoc = document.getElementById("main-workspace");
+        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+        const username = innerDoc.getElementById('usernameRef');
+        const disabled = innerDoc.getElementById('disabledRef');
+        const date = innerDoc.querySelector(`[id^='datepicker-']`);
+        if (username != undefined && username != null &&
+            disabled != undefined && disabled != null &&
+            date != undefined && date != null) {
+            if (username.value == eid) {
+                clearTimeout(timer);
+                resolve();
+            } else {
+                if (currentUsernameValue !== username.value) {
+                    currentUsernameValue = username.value
+                    simulateClick(findSearchResult(eid));
+                }
+            }
+        }
+    }, 250);
+}
+
+function waitForRoleLoad(resolve) {
+    const timer = setInterval(() => {
+        const mainDoc = document.getElementById("main-workspace");
+        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
+        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
+        if (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted')) {
+            clearTimeout(timer);
+            setTimeout(resolve, 1000);
+        }
+    }, 250);
+}
+
 function parseTitle(title) {
     let splitTitle = title.split('(');
     let name = splitTitle[0].trim();
@@ -317,6 +404,119 @@ function disableUser() {
     }
 }
 
+function cleanupDisableUser() {
+        try {
+        const mainDoc = document.getElementById("main-workspace");
+        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+        const disabled = innerDoc.getElementById('disabledRef');
+        const date = innerDoc.querySelector(`[id^='datepicker-']`);
+        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
+        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
+        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
+        //Remove all roles
+        let removedRoles = [];
+        let init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
+            }
+            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                if (!title.includes("*Disabled")) {
+                    simulateClick(roles[i]);
+                    removedRoles.push(title);
+                }
+            }
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
+        //add "*Disabled" role
+        init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]'));
+            }
+            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                if (title.includes("*Disabled")) {
+                    simulateClick(roles[i]);
+                }
+            }
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').disabled == false)
+        // Ensure "disabled" checkbox is checked
+        if (!disabled.checked) {
+            simulateClick(disabled)
+        }
+        // Set "Account Expiration Date" to today.
+        let today = new Date();
+        date.value = "";
+        date.dispatchEvent(new Event('input', { bubbles: true }));
+        let month = `${today.getMonth() + 1}`;
+        let day = `${today.getDate()}`;
+        let year = `${today.getFullYear()}`;
+
+        for (let i = 1; i <= month.length; i++) {
+            date.value = `${month.slice(0, i)}`;
+            date.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        if (month.length <= 1) month = "0" + month;
+        for (let i = 1; i <= day.length; i++) {
+            date.value = `${month}/${day.slice(0, i)}`;
+            date.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        if (day.length <= 1) day = "0" + day;
+        for (let i = 1; i <= year.length; i++) {
+            date.value = `${month}/${day}/${year.slice(0, i)}`;
+            date.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        return removedRoles.join("\n");
+    } catch (e) {
+        // console.log(e);
+        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+    }
+}
+
+async function cleanup(data) {
+    let failed = [];
+    for (let i = 0; i < data.length; i++) {
+        searchUser(data[i].EID);
+        let cont = true
+        let searchComplete = false;
+        await new Promise((resolve) => waitForSearch(resolve)).then(function (exists) {
+            if (!exists) {
+                failed.push(`${data[i].firstName} ${data[i].lastName} (${data[i].EID})`)
+                cont = false
+            }
+        })
+        await new Promise((resolve) => setTimeout(resolve, 250))
+        if (cont) {
+            simulateClick(findSearchResult(data[i].EID));
+            await new Promise((resolve => waitForCorrectFormLoad(data[i].EID, resolve)));
+            await new Promise((resolve => waitForRoleLoad(resolve)));
+            await new Promise((resolve) => setTimeout(resolve, 250))
+            data[i].removedRoles = cleanupDisableUser();
+            setTimeout(function () {clickSave()}, 800)
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2500))
+    }
+    console.log(data);
+    if (failed.length > 0) {
+        let msg = "";
+        for (let i = 0; i < failed.length; i++) {
+            msg += `${failed[i]}\n`;
+        }
+        alert ("Failed to find: \n\n" + msg);
+    } else {
+        alert ("Successfully updated all users");
+    }
+}
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.oper == "addCalendar") {
@@ -325,6 +525,8 @@ chrome.runtime.onMessage.addListener(
             removeCalendar(request.schools, request.current, request.future, request.previous, request.SS);
         } else if (request.oper == "disableUser") {
             disableUser();
+        } else if (request.oper == "cleanup") {
+            cleanup(request.data);
         }
     }
 );

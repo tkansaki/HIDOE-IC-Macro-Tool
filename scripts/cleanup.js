@@ -1,8 +1,6 @@
 import { XLSX } from './xlsx.js';
 
-document.getElementById("uploadInput").addEventListener("change", (event) => {
-  handleDropAsync(event);
-});
+let uploadedSheet;
 
 function letterBase26ToInt(str) {
 	return str.split('').reduce((a, c) => (a * 26) + parseInt(c, 36) - 9, 0);
@@ -81,8 +79,8 @@ function printTable(sheet) {
 function findColumn(sheet, colName) {
 	const range = parseRange(sheet["!ref"]);
 	for (let i = 1; i <= range.colMax; i++) {
-		if(sheet[`A${i}`]) {
-			if (colName.localeCompare(sheet[`A${i}`].v) == 0) {
+		if(sheet[`${intToletterBase26(i)}1`]) {
+			if (colName.localeCompare(sheet[`${intToletterBase26(i)}1`].v) == 0) {
 				return i;
 			}
 		}
@@ -115,7 +113,8 @@ async function handleDropAsync(e) {
   const data = await f.arrayBuffer();
   /* data is an ArrayBuffer */
   const workbook = XLSX.read(data);
-  printTable(workbook.Sheets["Sheet1"]);
+  uploadedSheet = workbook.Sheets["Sheet1"];
+  printTable(workbook.Sheets["Sheet1"])
   const eid = findColumn(workbook.Sheets["Sheet1"], "EID");
   if (eid > 0) {
   	enableStart()
@@ -125,3 +124,55 @@ async function handleDropAsync(e) {
   	setMessage("Cannot find column named EID");
   }
 }
+
+function prepareData(sheet) {
+	const range = parseRange(sheet["!ref"]);
+	const eidCol = findColumn(sheet, "EID");
+	const fNameCol = findColumn(sheet, "First Name");
+	const lNameCol = findColumn(sheet, "Last Name");
+	let data = [];
+
+	for (let i = 2; i <= range.rowMax; i++) {
+		let obj = {
+			EID: "",
+		  firstName: "",
+		  lastName: ""
+		};
+		for (let j = 1; j <= range.colMax; j++) {
+			if (sheet[`${intToletterBase26(j)}${i}`]) {
+				if (j == eidCol) {
+					obj.EID = sheet[`${intToletterBase26(j)}${i}`].v
+				} else if (j == fNameCol) {
+					obj.firstName = sheet[`${intToletterBase26(j)}${i}`].v
+				} else if (j == lNameCol) {
+					obj.lastName = sheet[`${intToletterBase26(j)}${i}`].v
+				}
+			}
+		}
+		data.push(obj);
+	}
+	return data;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    let uploadInput = document.getElementById("uploadInput");
+    let startButton = document.getElementById('startButton');
+
+    uploadInput.addEventListener("change", function (event) {
+      handleDropAsync(event);
+    });
+
+    startButton.addEventListener('click', function (event) {
+        chrome.tabs.query({
+            currentWindow: true,
+            active: true
+        }, function (tabs) {
+            let activeTab = tabs[0];
+            chrome.tabs.sendMessage(activeTab.id, {
+                oper: "cleanup",
+                data: prepareData(uploadedSheet)
+            });
+        });
+    });
+});
