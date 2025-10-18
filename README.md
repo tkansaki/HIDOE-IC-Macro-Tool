@@ -7,7 +7,10 @@ Current Features:
 	- Edit District Assignments
 	- Delete District Assignments
 - User Editor Page Macros
-	- Add User Roles
+	- Add User Calendar
+	- Remove User Calendars
+	- Cleanup
+	- Other Tools
 ## How to install
 First, download the latest release, then unzip the .zip or .tar.gz and take note of where the file unzips. The zip should unzip as a file named "HIDOE-IC-Macro-Tool-x.x". In your chrome browser, type the url "chrome://extensions/", then click enter. This should bring you to the extensions page. Ensure that the developer mode is on by making sure the "Developer mode" switch on the top right corner is switched on. If developer mode is on, you should see the option "Load unpacked" on the top left of the page. Click load unpacked, then find and select your unzipped file, then click "Select folder" (Windows) or "choose" (IOS). The extension should show under "All Extensions" as "IC Macro Tool".
 ## District Assignments Page Macro Tools
@@ -22,7 +25,9 @@ To use this tool, first click on the extension icon, then ensure that you are on
 Once you have completed filling the form on the extension popup, click start and the District Assignments will be automatically added one by one. For larger lists of schools, this may take a few minutes. You will be alerted upon completion with an alert dialogue.
 ## User Editor Page Macro Tools
 The tools for the User Editor page should only show up when you are on the user editor page in the new look. Tools will not show up otherwise. Certain tools require certain conditions such as having the user account information expanded rather than just the list of user accounts showing. This tool also requires that the account type be one that allows the selection/addition of user roles. (Campus Instruction/Tools)
-### Add User Roles
+### Add User Calendar
 To use this tool, first click on the extension icon, then ensure that you are on the "Add" tab. Then choose your schools either by Complex, Complex Area, District, or State (All Schools). Choose whether or not you want to include Elementary Schools, Secondary Schools, and/or Charter schools. The Elementary Schools and Secondary Schools selection are inclusive, meaning it will add schools that service both Elementary and Secondary, even if just one is selected. Next check off what calendars you would like to include. (Current, Future, Previous, Summer School). Click start and the user roles should be added in a couple seconds. You will be alerted upon completion.
-### Remove User Roles
+### Remove User Calendar
 To use this tool, first click on the extension icon, then ensure that you are on the "Remove" tab. Then choose your schools either by Complex, Complex Area, District, or State (All Schools). Choose whether or not you want to include Elementary Schools, Secondary Schools, and/or Charter schools. The Elementary Schools and Secondary Schools selection are inclusive, meaning it will add schools that service both Elementary and Secondary, even if just one is selected. Next check off what calendars you would like to include. (Current, Future, Previous, Summer School). Click start and the user roles should be added in a couple seconds. You will be alerted upon completion.
+### Cleanup
+First, use the ad Hoc in Infinite Campus to download an XLSX excel file of all the user accounts that have no logins within the past 90 days by following the "SIS - Infinite Campus Account Cleanup Process document" in the Proscess Library. To use this tool, you must navigate to the user editor page (User Management > User Account Administration > User Account). Click on the extension icon, then ensure that you are on the "Cleanup" tab. Click "Choose File" and select the XLSX that was downloaded fron Infinite Campus. If the file is correct, the start button should become active. Once you click the start button, this tool will automatically lookup every User ID# and disable the account associated with it. Any account containing \*INV will be skipped and logged. When the proscess ends, an alert will notify you and a CSV will be downloaded indicating all the users that were disabled and the roles that were removed. This tool will work with XLSX, XLS, and CSV's so long as there is a columns that is labled "EID" at the top.
