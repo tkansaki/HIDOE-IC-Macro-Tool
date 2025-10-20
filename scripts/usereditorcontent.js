@@ -381,6 +381,33 @@ function removeCalendar(schools, current, future, previous, SS) {
     }
 }
 
+function getCurrentRoles() {
+    try {
+        const mainDoc = document.getElementById("main-workspace");
+        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
+        let currentRoles = [];
+        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
+        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
+        let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
+        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
+        let init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
+            }
+            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            for (let i = 0; i < roles.length; i++) {
+                currentRoles.push(roles[i].textContent);
+            }
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
+        return currentRoles;
+    } catch (e) {
+        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+    }
+}
+
 function disableUser() {
     try {
         const mainDoc = document.getElementById("main-workspace");
@@ -612,11 +639,12 @@ async function cleanup(data) {
             await new Promise((resolve => waitForCorrectFormLoad(data[i].EID, resolve)));
             await new Promise((resolve => waitForRoleLoad(resolve)));
             await new Promise((resolve) => setTimeout(resolve, 250));
-            data[i].removedRoles = cleanupDisableUser();
-            if (data[i].removedRoles.includes("*INV")) {
+            const currentRoles = getCurrentRoles();
+            if (currentRoles.includes("*INV")) {
                 failed.push(`${data[i].firstName} ${data[i].lastName} (${data[i].EID})`);
                 data[i].removedRoles = "Failed: User has *INV";
             } else {
+                data[i].removedRoles = cleanupDisableUser();
                 await new Promise((resolve) => setTimeout(resolve, 800));
                 clickSave();
             }
