@@ -144,7 +144,7 @@ function waitForSearch(resolve) {
 }
 
 function waitForCorrectFormLoad(eid, resolve) {
-    let currentUsernameValue;
+    let numChecks = 0;
     const timer = setInterval(() => {
         const mainDoc = document.getElementById("main-workspace");
         const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
@@ -158,12 +158,12 @@ function waitForCorrectFormLoad(eid, resolve) {
                 clearTimeout(timer);
                 resolve();
             } else {
-                if (currentUsernameValue !== username.value) {
-                    currentUsernameValue = username.value
+                if (numChecks % 4 == 0) {
                     simulateClick(findSearchResult(eid));
                 }
             }
         }
+        numChecks++;
     }, 250);
 }
 

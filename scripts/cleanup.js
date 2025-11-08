@@ -115,21 +115,21 @@ async function handleDropAsync(e) {
   const workbook = XLSX.read(data);
   uploadedSheet = workbook.Sheets["Sheet1"];
   printTable(workbook.Sheets["Sheet1"])
-  const eid = findColumn(workbook.Sheets["Sheet1"], "EID");
+  const eid = findColumn(workbook.Sheets["Sheet1"], "USERNAME");
   if (eid > 0) {
   	enableStart()
   	clearMessage()
   } else {
   	disableStart()
-  	setMessage("Cannot find column named EID");
+  	setMessage("Cannot find column named USERNAME");
   }
 }
 
 function prepareData(sheet) {
 	const range = parseRange(sheet["!ref"]);
-	const eidCol = findColumn(sheet, "EID");
-	const fNameCol = findColumn(sheet, "First Name");
-	const lNameCol = findColumn(sheet, "Last Name");
+	const eidCol = findColumn(sheet, "USERNAME");
+	const fNameCol = findColumn(sheet, "FIRST NAME");
+	const lNameCol = findColumn(sheet, "LAST NAME");
 	let data = [];
 
 	for (let i = 2; i <= range.rowMax; i++) {
