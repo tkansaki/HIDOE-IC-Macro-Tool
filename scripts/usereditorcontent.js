@@ -23,13 +23,13 @@ function openSearch() {
 }
 
 function isSearchOpen() {
-    const select = document.querySelector('kendo-dropdownlist[valuefield="type"][data-cy="tool-context-search-context-dropdown"]');
+    const select = document.querySelector('kendo-dropdownlist[valuefield="type"][data-cy="nav-wrapper-tool-context-search-context-dropdown"]');
     const searchbox = document.getElementById("searchBox");
     return select && searchbox;
 }
 
 function openSearchTypeOptions() {
-    const select = document.querySelector('kendo-dropdownlist[valuefield="type"][data-cy="tool-context-search-context-dropdown"]');
+    const select = document.querySelector('kendo-dropdownlist[valuefield="type"][data-cy="nav-wrapper-tool-context-search-context-dropdown"]');
     if (select) {
         simulateClick(select);
         return true
@@ -404,7 +404,9 @@ function getCurrentRoles() {
         } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
         return currentRoles;
     } catch (e) {
+        console.log(e);
         alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+        return [];
     }
 }
 
