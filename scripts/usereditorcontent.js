@@ -1,3 +1,43 @@
+const queryUnselectedStr = 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
+const querySelectedStr = 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
+
+function getInnerDoc() {
+    const mainDoc = document.getElementById("main-workspace");
+    return mainDoc.contentDocument || mainDoc.contentWindow.document;
+}
+
+function getUnselectedLastPageButton() {
+    return getInnerDoc().querySelector(queryUnselectedStr).querySelector('button[title="Go to the last page"]')
+}
+
+function getUnselectedPrevPageButton() {
+    return getInnerDoc().querySelector(queryUnselectedStr).querySelector('button[title="Go to the previous page"]')
+}
+
+function getUnselectedRowCount() {
+    return parseInt(getInnerDoc().querySelector(queryUnselectedStr).querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
+}
+
+function getUnselectedRoles() {
+    return getInnerDoc().querySelector(queryUnselectedStr).querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+}
+
+function getSelectedLastPageButton() {
+    return getInnerDoc().querySelector(querySelectedStr).querySelector('button[title="Go to the last page"]')
+}
+
+function getSelectedPrevPageButton() {
+    return getInnerDoc().querySelector(querySelectedStr).querySelector('button[title="Go to the previous page"]')
+}
+
+function getSelectedRowCount() {
+    return parseInt(getInnerDoc().querySelector(querySelectedStr).querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
+}
+
+function getSelectedRoles() {
+    return getInnerDoc().querySelector(querySelectedStr).querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+}
+
 function triggerMouseEvent(element, eventType) {
     const clickEvent = new MouseEvent(eventType, {
         bubbles: true,
@@ -119,9 +159,7 @@ function findSearchResult(eid) {
 }
 
 function clickSave() {
-    const mainDoc = document.getElementById("main-workspace");
-    const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
-    const buttons = innerDoc.getElementsByTagName("button");
+    const buttons = getInnerDoc().getElementsByTagName("button");
     let saveButton;
     for (let i = 0; i < buttons.length; i++) {
         if (buttons[i].innerHTML.includes(" Save ")) {
@@ -146,11 +184,9 @@ function waitForSearch(resolve) {
 function waitForCorrectFormLoad(eid, resolve) {
     let numChecks = 0;
     const timer = setInterval(() => {
-        const mainDoc = document.getElementById("main-workspace");
-        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
-        const username = innerDoc.getElementById('usernameRef');
-        const disabled = innerDoc.getElementById('disabledRef');
-        const date = innerDoc.querySelector(`[id^='datepicker-']`);
+        const username = getInnerDoc().getElementById('usernameRef');
+        const disabled = getInnerDoc().getElementById('disabledRef');
+        const date = getInnerDoc().querySelector(`[id^='datepicker-']`);
         if (username != undefined && username != null &&
             disabled != undefined && disabled != null &&
             date != undefined && date != null) {
@@ -169,11 +205,7 @@ function waitForCorrectFormLoad(eid, resolve) {
 
 function waitForRoleLoad(resolve) {
     const timer = setInterval(() => {
-        const mainDoc = document.getElementById("main-workspace");
-        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
-        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
-        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        if (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted')) {
+        if (getInnerDoc().querySelector(queryUnselectedStr)) {
             clearTimeout(timer);
             setTimeout(resolve, 1000);
         }
@@ -245,23 +277,17 @@ function isInSchoolList(schools, name) {
 
 function addCalendar(schools, current, future, previous, SS) {
     try {
-        const mainDoc = document.getElementById("main-workspace");
-        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
         let success = new Array(schools.length);
-        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
-        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
-        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the last page"]'));
+        let numSelectedRoles = getSelectedRowCount();
+        simulateClick(getUnselectedLastPageButton());
         let init = true;
         do {
-            iter--;
             if (init) {
                 init = false;
             } else {
-                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]'));
+                simulateClick(getUnselectedPrevPageButton());
             }
-            console.log("loop");
-            let roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            let roles = getUnselectedRoles();
             for (let i = 0; i < roles.length; i++) {
                 let title = roles[i].textContent;
                 let parsedTitle = parseTitle(title);
@@ -283,7 +309,7 @@ function addCalendar(schools, current, future, previous, SS) {
                     }
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false");
+        } while (getUnselectedPrevPageButton().getAttribute('aria-disabled') === "false");
         let failed = [];
         for (let i = 0; i < schools.length; i++) {
             if (!success[i]) {
@@ -291,7 +317,7 @@ function addCalendar(schools, current, future, previous, SS) {
             }
         }
         const timer = setInterval(() => {
-            let currentLength = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
+            let currentLength = getSelectedRowCount();
             if (currentLength >= numSelectedRoles) {
                 clearTimeout(timer);
                 if (failed.length > 0) {
@@ -316,21 +342,17 @@ function addCalendar(schools, current, future, previous, SS) {
 
 function removeCalendar(schools, current, future, previous, SS) {
     try {
-        const mainDoc = document.getElementById("main-workspace");
-        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
         let success = new Array(schools.length);
-        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
-        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
-        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
+        let numSelectedRoles = getUnselectedRowCount();
+        simulateClick(getSelectedLastPageButton);
         let init = true;
         do {
             if (init) {
                 init = false;
             } else {
-                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
+                simulateClick(getSelectedPrevPageButton());
             }
-            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            const roles = getSelectedRoles();
             for (let i = 0; i < roles.length; i++) {
                 let title = roles[i].textContent;
                 let parsedTitle = parseTitle(title);
@@ -352,7 +374,7 @@ function removeCalendar(schools, current, future, previous, SS) {
                     }
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
+        } while (getSelectedPrevPageButton().getAttribute('aria-disabled') === "false")
         let failed = [];
         for (let i = 0; i < schools.length; i++) {
             if (!success[i]) {
@@ -360,7 +382,7 @@ function removeCalendar(schools, current, future, previous, SS) {
             }
         }
         const timer = setInterval(() => {
-            let currentLength = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
+            let currentLength = getUnselectedRowCount();
             if (currentLength >= numSelectedRoles) {
                 clearTimeout(timer);
                 if (failed.length > 0) {
@@ -385,25 +407,21 @@ function removeCalendar(schools, current, future, previous, SS) {
 
 function getCurrentRoles() {
     try {
-        const mainDoc = document.getElementById("main-workspace");
-        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
         let currentRoles = [];
-        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
-        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
-        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
+        let numSelectedRoles = getUnselectedRowCount();
+        simulateClick(getSelectedLastPageButton());
         let init = true;
         do {
             if (init) {
                 init = false;
             } else {
-                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
+                simulateClick(getSelectedPrevPageButton());
             }
-            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            const roles = getSelectedRoles();
             for (let i = 0; i < roles.length; i++) {
                 currentRoles.push(roles[i].textContent);
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
+        } while (getSelectedPrevPageButton().getAttribute('aria-disabled') === "false")
         return currentRoles;
     } catch (e) {
         console.log(e);
@@ -412,15 +430,11 @@ function getCurrentRoles() {
     }
 }
 
-function disableUser() {
-    try {
-        const mainDoc = document.getElementById("main-workspace");
-        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
-        const disabled = innerDoc.getElementById('disabledRef');
-        const date = innerDoc.querySelector(`[id^='datepicker-']`);
-        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
-        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
+function disableWorker() {
+        try {
+        const disabled = getInnerDoc().getElementById('disabledRef');
+        const date = getInnerDoc().querySelector(`[id^='datepicker-']`);
+        simulateClick(getSelectedLastPageButton());
         //Remove all roles
         let removedRoles = [];
         let init = true;
@@ -428,9 +442,9 @@ function disableUser() {
             if (init) {
                 init = false;
             } else {
-                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
+                simulateClick(getSelectedPrevPageButton());
             }
-            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            const roles = getSelectedRoles();
             for (let i = 0; i < roles.length; i++) {
                 let title = roles[i].textContent;
                 if (!title.includes("*Disabled")) {
@@ -438,23 +452,24 @@ function disableUser() {
                     removedRoles.push(title);
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
+        } while (getSelectedPrevPageButton().getAttribute('aria-disabled') === "false")
+
         //add "*Disabled" role
         init = true;
         do {
             if (init) {
                 init = false;
             } else {
-                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]'));
+                simulateClick(getUnselectedPrevPageButton());
             }
-            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            const roles = getUnselectedRoles();
             for (let i = 0; i < roles.length; i++) {
                 let title = roles[i].textContent;
                 if (title.includes("*Disabled")) {
                     simulateClick(roles[i]);
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
+        } while (getUnselectedPrevPageButton().getAttribute('aria-disabled') === "false")
         // Ensure "disabled" checkbox is checked
         if (!disabled.checked) {
             simulateClick(disabled)
@@ -483,8 +498,16 @@ function disableUser() {
             date.value = `${month}/${day}/${year.slice(0, i)}`;
             date.dispatchEvent(new Event('input', { bubbles: true }));
         }
-        let rolestr = removedRoles.join("\n");
+        return removedRoles;
+    } catch (e) {
+        console.log(e);
+        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+    }
+}
 
+function disableUser() {
+    try {
+        let rolestr = disableWorker().join("\n");
         setTimeout( async function () {
             if (confirm(`Copy Removed Roles to Clipboard?\n\n${rolestr}`)) {
                 let tryagain = true;
@@ -510,83 +533,6 @@ function disableUser() {
     }
 }
 
-function cleanupDisableUser() {
-        try {
-        const mainDoc = document.getElementById("main-workspace");
-        const innerDoc = mainDoc.contentDocument || mainDoc.contentWindow.document;
-        const disabled = innerDoc.getElementById('disabledRef');
-        const date = innerDoc.querySelector(`[id^='datepicker-']`);
-        //query added - 'kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)'
-        //query not added - 'kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted'
-        simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the last page"]'));
-        //Remove all roles
-        let removedRoles = [];
-        let init = true;
-        do {
-            if (init) {
-                init = false;
-            } else {
-                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]'));
-            }
-            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
-            for (let i = 0; i < roles.length; i++) {
-                let title = roles[i].textContent;
-                if (!title.includes("*Disabled")) {
-                    simulateClick(roles[i]);
-                    removedRoles.push(title);
-                }
-            }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
-        //add "*Disabled" role
-        init = true;
-        do {
-            if (init) {
-                init = false;
-            } else {
-                simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]'));
-            }
-            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
-            for (let i = 0; i < roles.length; i++) {
-                let title = roles[i].textContent;
-                if (title.includes("*Disabled")) {
-                    simulateClick(roles[i]);
-                }
-            }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
-        // Ensure "disabled" checkbox is checked
-        if (!disabled.checked) {
-            simulateClick(disabled)
-        }
-        // Set "Account Expiration Date" to today.
-        let today = new Date();
-        date.value = "";
-        date.dispatchEvent(new Event('input', { bubbles: true }));
-        let month = `${today.getMonth() + 1}`;
-        let day = `${today.getDate()}`;
-        let year = `${today.getFullYear()}`;
-
-        for (let i = 1; i <= month.length; i++) {
-            date.value = `${month.slice(0, i)}`;
-            date.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        if (month.length <= 1) month = "0" + month;
-        for (let i = 1; i <= day.length; i++) {
-            date.value = `${month}/${day.slice(0, i)}`;
-            date.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-
-        if (day.length <= 1) day = "0" + day;
-        for (let i = 1; i <= year.length; i++) {
-            date.value = `${month}/${day}/${year.slice(0, i)}`;
-            date.dispatchEvent(new Event('input', { bubbles: true }));
-        }
-        return removedRoles.join(", ");
-    } catch (e) {
-        // console.log(e);
-        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
-    }
-}
 
 function cleanupDataToCSV(data) {
     let arr = [];
@@ -644,12 +590,21 @@ async function cleanup(data) {
             await new Promise((resolve => waitForRoleLoad(resolve)));
             await new Promise((resolve) => setTimeout(resolve, 250));
             const currentRoles = getCurrentRoles();
+            const initialLength = getSelectedRowCount();
             if (currentRoles.includes("*INV")) {
                 failed.push(`${data[i].firstName} ${data[i].lastName} (${data[i].EID})`);
                 data[i].removedRoles = "Failed: User has *INV";
             } else {
-                data[i].removedRoles = cleanupDisableUser();
-                await new Promise((resolve) => setTimeout(resolve, 800));
+                data[i].removedRoles = disableWorker().join(", ");
+                await new Promise((resolve) => {
+                    const timer = setInterval(() => {
+                        let currentLength = getSelectedRowCount();
+                        if (currentLength <= initialLength - currentRoles.length + 1) {
+                            clearTimeout(timer);
+                            resolve();
+                        }
+                    }, 250);
+                });
                 clickSave();
             }
         }
