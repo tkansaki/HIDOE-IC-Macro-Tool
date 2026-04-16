@@ -38,6 +38,23 @@ function getSelectedRoles() {
     return getInnerDoc().querySelector(querySelectedStr).querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
 }
 
+function getModifiedTimestamp() {
+    const headers = getInnerDoc().querySelectorAll('h3.card__header')
+    let accessHeader;
+    let modifiedBy;
+    headers.forEach((header) => {
+        if (header.innerHTML.includes("Access Information")) {
+            accessHeader = header;
+        }
+    })
+    accessHeader.parentNode.querySelectorAll('li').forEach((listItem) => {
+        if (listItem.innerHTML.includes("Modified By:")) {
+            modifiedBy = listItem.innerHTML;
+        }
+    });
+    return modifiedBy.slice(-16);
+}
+
 function triggerMouseEvent(element, eventType) {
     const clickEvent = new MouseEvent(eventType, {
         bubbles: true,
@@ -207,7 +224,7 @@ function waitForRoleLoad(resolve) {
     const timer = setInterval(() => {
         if (getInnerDoc().querySelector(queryUnselectedStr)) {
             clearTimeout(timer);
-            setTimeout(resolve, 1000);
+            setTimeout(resolve, 250);
         }
     }, 250);
 }
@@ -500,7 +517,7 @@ function disableWorker() {
         }
         return removedRoles;
     } catch (e) {
-        console.log(e);
+        //console.log(e);
         alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
     }
 }
@@ -528,7 +545,7 @@ function disableUser() {
             };
         }, 500);
     } catch (e) {
-        // console.log(e);
+        console.log(e);
         alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
     }
 }
@@ -583,9 +600,9 @@ async function cleanup(data) {
                 cont = false;
             }
         })
-        await new Promise((resolve) => setTimeout(resolve, 250))
-        if (cont) {
-            simulateClick(findSearchResult(data[i].EID));
+        let searchResult = findSearchResult(data[i].EID);
+        if (cont && searchResult !== null) {
+            simulateClick(searchResult);
             await new Promise((resolve => waitForCorrectFormLoad(data[i].EID, resolve)));
             await new Promise((resolve => waitForRoleLoad(resolve)));
             await new Promise((resolve) => setTimeout(resolve, 250));
@@ -605,10 +622,24 @@ async function cleanup(data) {
                         }
                     }, 250);
                 });
+                const saveTimestamp = Math.floor(Date.now() / 60000);
                 clickSave();
+                await new Promise((resolve) => {
+                    const timer = setInterval(() => {
+                        try {
+                            let modifiedTimestamp = new Date(getModifiedTimestamp())
+                            if (Math.floor(modifiedTimestamp.valueOf() / 60000) >= saveTimestamp) {
+                                clearTimeout(timer);
+                                resolve();
+                            }
+                        } catch (e) {
+                            // console.log(e);
+                            // document still saving or loading
+                        }
+                    }, 250);
+                });
             }
         }
-        await new Promise((resolve) => setTimeout(resolve, 2500));
     }
     let csvFile = cleanupDataToCSV(data);
     if (failed.length > 0) {
