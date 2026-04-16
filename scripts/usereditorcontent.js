@@ -361,7 +361,7 @@ function removeCalendar(schools, current, future, previous, SS) {
     try {
         let success = new Array(schools.length);
         let numSelectedRoles = getUnselectedRowCount();
-        simulateClick(getSelectedLastPageButton);
+        simulateClick(getSelectedLastPageButton());
         let init = true;
         do {
             if (init) {
