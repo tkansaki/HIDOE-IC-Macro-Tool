@@ -253,13 +253,16 @@ function addCalendar(schools, current, future, previous, SS) {
         let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
         simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the last page"]'));
         let init = true;
+        let iter = 88;
         do {
+            iter--;
             if (init) {
                 init = false;
             } else {
                 simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]'));
             }
-            const roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
+            console.log("loop");
+            let roles = innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('kendo-grid-list').querySelectorAll('td[role = "gridcell"]');
             for (let i = 0; i < roles.length; i++) {
                 let title = roles[i].textContent;
                 let parsedTitle = parseTitle(title);
@@ -281,7 +284,7 @@ function addCalendar(schools, current, future, previous, SS) {
                     }
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').disabled == false)
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false");
         let failed = [];
         for (let i = 0; i < schools.length; i++) {
             if (!success[i]) {
@@ -350,7 +353,7 @@ function removeCalendar(schools, current, future, previous, SS) {
                     }
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
         let failed = [];
         for (let i = 0; i < schools.length; i++) {
             if (!success[i]) {
@@ -401,7 +404,7 @@ function getCurrentRoles() {
             for (let i = 0; i < roles.length; i++) {
                 currentRoles.push(roles[i].textContent);
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
         return currentRoles;
     } catch (e) {
         console.log(e);
@@ -436,7 +439,7 @@ function disableUser() {
                     removedRoles.push(title);
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
         //add "*Disabled" role
         init = true;
         do {
@@ -452,7 +455,7 @@ function disableUser() {
                     simulateClick(roles[i]);
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').disabled == false)
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
         // Ensure "disabled" checkbox is checked
         if (!disabled.checked) {
             simulateClick(disabled)
@@ -534,7 +537,7 @@ function cleanupDisableUser() {
                     removedRoles.push(title);
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').disabled == false)
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
         //add "*Disabled" role
         init = true;
         do {
@@ -550,7 +553,7 @@ function cleanupDisableUser() {
                     simulateClick(roles[i]);
                 }
             }
-        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').disabled == false)
+        } while (innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the previous page"]').getAttribute('aria-disabled') === "false")
         // Ensure "disabled" checkbox is checked
         if (!disabled.checked) {
             simulateClick(disabled)
