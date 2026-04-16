@@ -253,7 +253,6 @@ function addCalendar(schools, current, future, previous, SS) {
         let numSelectedRoles = parseInt(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md:not(.ng-star-inserted)').querySelector('div.k-grid-aria-root[role="grid"]').getAttribute('aria-rowcount'));
         simulateClick(innerDoc.querySelector('kendo-grid.selectable.k-grid.k-grid-md.ng-star-inserted').querySelector('button[title="Go to the last page"]'));
         let init = true;
-        let iter = 88;
         do {
             iter--;
             if (init) {
