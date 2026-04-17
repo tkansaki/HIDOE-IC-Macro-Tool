@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('parseButton').addEventListener('click', function (event) {
         parse();
     });
+    document.getElementById('startButton').addEventListener('click', function (event) {
+        start();
+    });
 });
 
 function printTable() {
@@ -62,6 +65,10 @@ function parse() {
         data.push(rows[i].split('\t'));
     }
     printTable();
+    document.getElementById('startButton').disabled = false;
+    document.getElementById('parseButton').disabled = true;
+    document.getElementById('school').disabled = true;
+    document.getElementById('type').disabled = true;
     // console.log(data);
 }
 

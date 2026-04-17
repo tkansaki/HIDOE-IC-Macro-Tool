@@ -24,7 +24,7 @@
         </li>
       </ul>
     </div>
-    <div id="mainArea" class="container-fluid m-2">
+    <div id="mainArea" class="m-2 px-2" style="height: 200px; overflow-y: scroll;">
       <textarea class="form-control" id="pastedList"></textarea>
     </div>
     <div class="container-fluid m-2">
@@ -36,10 +36,11 @@
                 <option value="elementary">Elementary</option>
                 <option value="secondary">Secondary</option>
               </select>
-              <select class="form-control form-control-sm" id=school></select>
+              <select class="form-control form-control-sm" id="school"></select>
           </div>
         </div>
         <div class="col">
+          <button type="button" class="btn btn-primary btn-sm" id="startButton" disabled>Start</button>
         </div>
       </div>
     </div>
