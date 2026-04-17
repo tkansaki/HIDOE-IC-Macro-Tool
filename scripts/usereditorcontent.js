@@ -620,6 +620,7 @@ async function cleanup(data) {
                 await new Promise((resolve) => {
                     const timer = setInterval(() => {
                         let currentLength = getSelectedRowCount();
+                        //Pluys 1 accounts for added *Disabled role
                         if (currentLength <= initialLength - currentRoles.length + 1) {
                             clearTimeout(timer);
                             resolve();
@@ -658,6 +659,175 @@ async function cleanup(data) {
     download(csvFile);
 }
 
+//Summer School Functions
+
+function addRoles(data, school, type) {
+    let SSRoles = "";
+    if (data[4].includes("Summer School Data Entry")) {
+        SSRoles += "*Summer School Data Entry Staff, "
+    }
+    if (data[4].includes("Summer School Teacher")) {
+        if (type == "elementary") {
+            SSRoles += "*Summer School Elementary Teacher"
+        } else if (type == "secondary") {
+            SSRoles += "*Summer School Secondary Teacher"
+        }
+    }  
+
+    try {
+        let numAddedRoles = 0;
+        simulateClick(getUnselectedLastPageButton());
+        let init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(getUnselectedPrevPageButton());
+            }
+            const roles = getUnselectedRoles();
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                let parsedTitle = parseTitle(title);
+                if (SSRoles.includes(title)) {
+                    simulateClick(roles[i]);
+                        numAddedRoles++;
+                }
+                if (schoolMatch(school, parsedTitle.name)) {
+                    if (parsedTitle.period == "SS") {
+                        simulateClick(roles[i]);
+                        numAddedRoles++;
+                    }
+                }
+            }
+        } while (getUnselectedPrevPageButton().getAttribute('aria-disabled') === "false")
+        return numAddedRoles;
+    } catch (e) {
+        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+        return -1;
+    }
+}
+
+function removeDisabled() {
+    try {
+        simulateClick(getSelectedLastPageButton());
+        let init = true;
+        let numRemovedRoles = 0;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(getSelectedPrevPageButton());
+            }
+            const roles = getSelectedRoles();
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                if (title.includes("*INV")) {
+                    return -1;
+                }
+                if (title.includes("*Disabled")) {
+                    simulateClick(roles[i]);
+                    numRemovedRoles++;
+                }
+            }
+        } while (getSelectedPrevPageButton().getAttribute('aria-disabled') === "false")
+        return numRemovedRoles;
+    } catch (e) {
+        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+        return -1;
+    }
+}
+
+function ensureActive() {
+    try {
+        const disabled = getInnerDoc().getElementById('disabledRef');
+        const date = getInnerDoc().querySelector(`[id^='datepicker-']`);
+        if (disabled.checked) {
+            simulateClick(disabled)
+            if (date.value) {
+                date.value = "";
+                date.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            return removeDisabled();
+        } else {
+            return 0;
+        }
+    } catch (e) {
+        return -1;
+    }
+}
+
+async function summerSchoolAutoProv(school, type, data) {
+    let failed = [];
+    if (!isSearchOpen()) {
+        openSearch()
+    }
+    if (!checkSearchType("User")) {
+        await new Promise((resolve) => setSearchType("User", resolve));
+    }
+    for (let i = 0; i < data.length; i++) {
+        searchUser(data[i][1]);
+        let cont = true
+        let searchComplete = false;
+        await new Promise((resolve) => waitForSearch(resolve)).then(function (exists) {
+            if (!exists) {
+                failed.push(`${data[i][0]} (${data[i][1]})`)
+                cont = false
+            }
+        })
+        await new Promise((resolve) => setTimeout(resolve, 250))
+        if (cont) {
+            simulateClick(findSearchResult(data[i][1]));
+            await new Promise((resolve => waitForCorrectFormLoad(data[i][1], resolve)));
+            await new Promise((resolve => waitForRoleLoad(resolve)));
+            await new Promise((resolve) => setTimeout(resolve, 250))
+            let initialLength = getSelectedRowCount();
+            let enabledStatus = ensureActive();
+            if (enabledStatus >= 0) {
+                let numAddedRoles = addRoles(data[i], school, type);
+                if (numAddedRoles >= 0) {
+                    await new Promise((resolve) => {
+                        const timer = setInterval(() => {
+                            let currentLength = getSelectedRowCount();
+                            if (currentLength <= initialLength + numAddedRoles - enabledStatus) {
+                                clearTimeout(timer);
+                                resolve();
+                            }
+                        }, 250);
+                    });
+                }
+                const saveTimestamp = Math.floor(Date.now() / 60000);
+                clickSave();
+                await new Promise((resolve) => {
+                    const timer = setInterval(() => {
+                        try {
+                            let modifiedTimestamp = new Date(getModifiedTimestamp())
+                            if (Math.floor(modifiedTimestamp.valueOf() / 60000) >= saveTimestamp) {
+                                clearTimeout(timer);
+                                resolve();
+                            }
+                        } catch (e) {
+                            // console.log(e);
+                            // document still saving or loading
+                        }
+                    }, 250);
+                });
+            } else {
+                failed.push(`${data[i][0]} (${data[i][1]})`)
+                cont = false
+            }
+        }
+    }
+    if (failed.length > 0) {
+        let msg = "";
+        for (let i = 0; i < failed.length; i++) {
+            msg += `${failed[i]}\n`;
+        }
+        alert ("Failed to find: \n\n" + msg);
+    } else {
+        alert ("Successfully updated all users");
+    }
+}
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.oper == "addCalendar") {
@@ -668,6 +838,8 @@ chrome.runtime.onMessage.addListener(
             disableUser();
         } else if (request.oper == "cleanup") {
             cleanup(request.data);
+        } else if (request.oper == "SSAutoProv") {
+            summerSchoolAutoProv(request.school, request.type, request.data);
         }
     }
 );

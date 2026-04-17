@@ -80,7 +80,7 @@ function start() {
         let activeTab = tabs[0];
         chrome.tabs.sendMessage(activeTab.id, {
             oper: "SSAutoProv",
-            school,
+            school: schools[document.getElementById('school').value],
             type: document.getElementById('type').value,
             data,
         });
