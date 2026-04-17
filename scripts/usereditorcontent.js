@@ -780,41 +780,51 @@ async function summerSchoolAutoProv(school, type, data) {
             await new Promise((resolve => waitForCorrectFormLoad(data[i][1], resolve)));
             await new Promise((resolve => waitForRoleLoad(resolve)));
             await new Promise((resolve) => setTimeout(resolve, 250))
+
             let initialLength = getSelectedRowCount();
-            let enabledStatus = ensureActive();
-            if (enabledStatus >= 0) {
-                let numAddedRoles = addRoles(data[i], school, type);
-                if (numAddedRoles >= 0) {
-                    await new Promise((resolve) => {
-                        const timer = setInterval(() => {
-                            let currentLength = getSelectedRowCount();
-                            if (currentLength <= initialLength + numAddedRoles - enabledStatus) {
-                                clearTimeout(timer);
-                                resolve();
-                            }
-                        }, 250);
-                    });
+            if (data[i][3].includes("Request Access")) {
+                let enabledStatus = ensureActive();
+                if (enabledStatus >= 0) {
+                    let numAddedRoles = addRoles(data[i], school, type);
+                    if (numAddedRoles >= 0) {
+                        await new Promise((resolve) => {
+                            const timer = setInterval(() => {
+                                let currentLength = getSelectedRowCount();
+                                if (currentLength <= initialLength + numAddedRoles - enabledStatus) {
+                                    clearTimeout(timer);
+                                    resolve();
+                                }
+                            }, 250);
+                        });
+                    } else {
+                        failed.push(`${data[i][0]} (${data[i][1]})`)
+                        cont = false
+                    }
+                } else {
+                    failed.push(`${data[i][0]} (${data[i][1]})`)
+                    cont = false
                 }
-                const saveTimestamp = Math.floor(Date.now() / 60000);
-                clickSave();
-                await new Promise((resolve) => {
-                    const timer = setInterval(() => {
-                        try {
-                            let modifiedTimestamp = new Date(getModifiedTimestamp())
-                            if (Math.floor(modifiedTimestamp.valueOf() / 60000) >= saveTimestamp) {
-                                clearTimeout(timer);
-                                resolve();
-                            }
-                        } catch (e) {
-                            // console.log(e);
-                            // document still saving or loading
-                        }
-                    }, 250);
-                });
             } else {
-                failed.push(`${data[i][0]} (${data[i][1]})`)
-                cont = false
+                //remove role functionality here
             }
+        }
+        if (cont) {
+            const saveTimestamp = Math.floor(Date.now() / 60000);
+            clickSave();
+            await new Promise((resolve) => {
+                const timer = setInterval(() => {
+                    try {
+                        let modifiedTimestamp = new Date(getModifiedTimestamp())
+                        if (Math.floor(modifiedTimestamp.valueOf() / 60000) >= saveTimestamp) {
+                            clearTimeout(timer);
+                            resolve();
+                        }
+                    } catch (e) {
+                        // console.log(e);
+                        // document still saving or loading
+                    }
+                }, 250);
+            });
         }
     }
     if (failed.length > 0) {
