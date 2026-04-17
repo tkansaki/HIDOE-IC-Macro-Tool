@@ -534,7 +534,7 @@ function disableUser() {
                         navigator.clipboard.writeText(rolestr);
                         tryagain = false;
                     } catch (e){
-                        console.log("try again?", e);
+                        //console.log("try again?", e);
                         if (confirm("Copy to clipboard failed. Try again?")) {
                             tryagain = true;
                         } else {
@@ -620,7 +620,7 @@ async function cleanup(data) {
                 await new Promise((resolve) => {
                     const timer = setInterval(() => {
                         let currentLength = getSelectedRowCount();
-                        //Pluys 1 accounts for added *Disabled role
+                        //Plus 1 accounts for added *Disabled role
                         if (currentLength <= initialLength - currentRoles.length + 1) {
                             clearTimeout(timer);
                             resolve();

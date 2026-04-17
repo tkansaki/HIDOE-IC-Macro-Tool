@@ -18,3 +18,11 @@ html{
 #notes {
 	display: none;
 }
+
+#copyAdditionalComments {
+	float: right;
+}
+
+#copyWorkNotes {
+	float: right;
+}

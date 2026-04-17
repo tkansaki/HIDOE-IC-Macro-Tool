@@ -27,7 +27,7 @@
     <div id="mainArea" class="m-2 px-2" style="height: 200px; overflow-y: scroll;">
       <textarea class="form-control" id="pastedList"></textarea>
     </div>
-    <div class="container-fluid m-2">
+    <div class="container-fluid m-1">
       <div class="row">
         <div class="col">
           <div class="input-group mb-3">
@@ -42,14 +42,28 @@
         </div>
       </div>
     </div>
-    <div class="container-fluid m-2 p-2" id="notes">
+    <div class="container-fluid m-2 p-3" id="notes">
       <div class="row">
         <div class="col">
-          <h6>Additional Comments:</h6>
+          <div class="row my-1">
+            <div class="col">
+              <h6>Additional Comments:</h6>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-secondary btn-sm" id="copyAdditionalComments">Copy</button>
+            </div>
+          </div>
           <textarea class="form-control" type="text" id="additionalComments"></textarea>
         </div>
         <div class="col">
-          <h6>Work Notes:</h6>
+          <div class="row my-1">
+            <div class="col">
+              <h6>Work Notes:</h6>
+            </div>
+            <div class="col">
+              <button type="button" class="btn btn-secondary btn-sm" id="copyWorkNotes">Copy</button>
+            </div>
+          </div>
           <textarea class="form-control" type="text" id="workNotes"></textarea>
         </div>
       </div>

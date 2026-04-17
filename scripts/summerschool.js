@@ -20,7 +20,61 @@ document.addEventListener('DOMContentLoaded', function() {
         outputComment();
         outputWorkNotes()
     });
+    document.getElementById('copyAdditionalComments').addEventListener('click', function (event) {
+        copyAdditionalComments();
+    });
+    document.getElementById('copyWorkNotes').addEventListener('click', function (event) {
+        copyWorkNotes();
+    });
 });
+
+function copySuccess() {
+    let msg = document.createElement('div');
+    msg.className = "alert alert-success";
+    msg.innerHTML = "Copied Sucessfully";
+    msg.style.position = "fixed";
+    msg.style.top = "20px";
+    msg.style.width = "95%";
+    document.getElementById('notes').appendChild(msg);
+    setTimeout(() => {
+        msg.animate([{opacity: 1},{opacity: 0}], {duration: 1000})
+        msg.style.opacity = "0";
+        setTimeout(() => {msg.remove()}, 1000);
+    }, 2000)
+}
+
+function copyFail() {
+    let msg = document.createElement('div');
+    msg.className = "alert alert-danger";
+    msg.innerHTML = "Copied Failed";
+    msg.style.position = "fixed";
+    msg.style.top = "20px";
+    msg.style.width = "95%";
+    document.getElementById('notes').appendChild(msg);
+    setTimeout(() => {
+        msg.animate([{opacity: 1},{opacity: 0}], {duration: 1000})
+        msg.style.opacity = "0";
+        setTimeout(() => {msg.remove()}, 1000);
+    }, 2000)
+}
+
+function copyAdditionalComments() {
+    try {
+        navigator.clipboard.writeText(document.getElementById("additionalComments").value);
+        copySuccess();
+    } catch (e){
+        copyFail();
+    }
+}
+
+function copyWorkNotes() {
+    try {
+        navigator.clipboard.writeText(document.getElementById("workNotes").value); 
+        copySuccess();
+    } catch (e){
+        copyFail();
+    }
+}
 
 function outputComment() {
     let text = "Your Access Request Form has been processed for:\n";
