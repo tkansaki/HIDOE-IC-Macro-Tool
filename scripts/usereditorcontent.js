@@ -563,7 +563,11 @@ function cleanupDataToCSV(data) {
         arr.push(`${data[i].lastName},`);
         arr.push(`"${data[i].removedRoles}"\n`);
     }
-    return new File(arr, `cleanup${(new Date()).toLocaleDateString("en-US").replaceAll("/", "")}.csv`, {
+    return new File(arr, `cleanup${(new Date()).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).replaceAll("/", "")}.csv`, {
         type: 'text/csv',
     })
 }

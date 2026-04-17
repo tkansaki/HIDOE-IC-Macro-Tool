@@ -2,3 +2,7 @@ html{
 	height:250px;
 	width:800px;
 }
+
+#pastedList {
+	height: 200px;
+}
