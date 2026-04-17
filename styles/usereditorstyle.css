@@ -6,3 +6,15 @@ html{
 #pastedList {
 	height: 200px;
 }
+
+#additionalComments {
+	height: 150px;
+}
+
+#workNotes {
+	height: 150px;
+}
+
+#notes {
+	display: none;
+}

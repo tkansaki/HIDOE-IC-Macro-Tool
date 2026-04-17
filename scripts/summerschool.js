@@ -4,7 +4,7 @@ let data;
 
 document.addEventListener('DOMContentLoaded', function() {
     let options = [];
-    options.push(`<option selected="selected">Choose School</option>`);
+    options.push(`<option value="" selected="selected">Choose School</option>`);
     for (let i = 0; i < schools.length; i++){
         options.push(`<option value="${i}">${schools[i].schoolName}</option>`);
     }
@@ -15,7 +15,51 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('startButton').addEventListener('click', function (event) {
         start();
     });
+    document.getElementById('showButton').addEventListener('click', function (event) {
+        document.getElementById('notes').style.display = "block";
+        outputComment();
+        outputWorkNotes()
+    });
 });
+
+function outputComment() {
+    let text = "Your Access Request Form has been processed for:\n";
+    for (let i = 0; i < data.length; i++) {
+        text += `${data[i][0]}\n`;
+    }
+    text += "\nThe indicated roles were added/removed. Their username and password has not been changed. If the following user(s) is unable to log in, please contact the IT Help Desk.\n\n"
+    text += "ANY ACCOUNTS THAT HAVE BEEN INACTIVE FOR 90 DAYS WILL BE AUTOMATICALLY DISABLED. YOU WILL NEED TO SUBMIT AN ACCESS REQUEST FORM TO REINSTATE ACCESS."
+    document.getElementById('additionalComments').value = text;
+}
+
+function outputWorkNotes() {
+    let text = "";
+    const calendar = `SS ${schools[document.getElementById('school').value].schoolName}`;
+    let teacherRole = "";
+    if (schools[document.getElementById('school').value].elementary) {
+        teacherRole += "*Summer School Elementary Teacher\n"
+    }
+    if (schools[document.getElementById('school').value].secondary) {
+        teacherRole += "*Summer School Secondary Teacher\n"
+    }
+    for (let i = 0; i < data.length; i++) {
+        if (data[i][3].includes("Request Access")) {
+            text += `Added to ${data[i][0]} (${data[i][1]}):\n`;
+        } else {
+            text += `Removed from ${data[i][0]} (${data[i][1]}):\n`;
+        }
+        text += `Added to ${data[i][0]} (${data[i][1]}):\n`;
+        text += `${calendar}\n`;
+        if (data[i][4].includes("Summer School Data Entry")) {
+            text += "*Summer School Data Entry Staff\n";
+        }
+        if (data[i][4].includes("Summer School Teacher")) {
+            text += `${teacherRole}`;
+        }
+        text += '\n';
+    }
+    document.getElementById('workNotes').value = text;
+}
 
 function printTable() {
     let range = data.length;
@@ -60,12 +104,19 @@ function parse() {
     const text = document.getElementById('pastedList').value;
     const school = schools[document.getElementById('school').value];
     const rows = text.split('\n');
+    console.log(document.getElementById('school').value)
+    if (document.getElementById('school').value === "") {
+        alert("Please Choose a School");
+        return;
+    }
     data = [];
     for (let i = 0; i < rows.length; i++) {
         data.push(rows[i].split('\t'));
     }
     printTable();
     document.getElementById('startButton').disabled = false;
+    document.getElementById('resetButton').disabled = false;
+    document.getElementById('showButton').disabled = false;
     document.getElementById('parseButton').disabled = true;
     document.getElementById('school').disabled = true;
     // console.log(data);
