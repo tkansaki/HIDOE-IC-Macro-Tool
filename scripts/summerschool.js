@@ -16,26 +16,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function printTable() {
     let range = data.length;
+    let mainTable = document.createElement("table");
+    mainTable.className = "table table-sm";
     let rowHead = document.createElement("tr");
-    for (let j = 1; j <= 3; j++) {
-        let data = document.createElement("th");
-        if (sheet[`${intToletterBase26(j)}1`]) {
-            data.innerHTML = sheet[`${intToletterBase26(j)}1`].v
-        }
-        rowHead.appendChild(data)
-    }
-    document.getElementById("mainTable").appendChild(rowHead);
-    for (let i = 2; i <= range.rowMax; i++) {
+    let name = document.createElement("th");
+    let id = document.createElement("th");
+    let title = document.createElement("th");
+    let action = document.createElement("th");
+    let role = document.createElement("th");
+
+    name.innerHTML = "Name";
+    id.innerHTML = "ID";
+    title.innerHTML = "Title";
+    action.innerHTML = "Action";
+    role.innerHTML = "Role";
+
+    rowHead.appendChild(name);
+    rowHead.appendChild(id);
+    rowHead.appendChild(title);
+    rowHead.appendChild(action);
+    rowHead.appendChild(role);
+
+    mainTable.appendChild(rowHead);
+    for (let i = 0; i < data.length; i++) {
         let row = document.createElement("tr");
-        for (let j = 1; j <= 3; j++) {
-            let data = document.createElement("td")
-            if (sheet[`${intToletterBase26(j)}${i}`]) {
-                data.innerHTML = sheet[`${intToletterBase26(j)}${i}`].v
+        for (let j = 0; j < 5; j++) {
+            let cell = document.createElement("td")
+            if (data[i][j]) {
+                cell.innerHTML = data[i][j];
             }
-            row.appendChild(data)
+            row.appendChild(cell);
         }
-        document.getElementById("mainTable").appendChild(row);
+        mainTable.appendChild(row);
     }
+    document.getElementById("mainArea").innerHTML = "";
+    document.getElementById("mainArea").appendChild(mainTable);
 }
 
 function parse() {
@@ -46,6 +61,7 @@ function parse() {
     for (let i = 0; i < rows.length; i++) {
         data.push(rows[i].split('\t'));
     }
+    printTable();
     // console.log(data);
 }
 
