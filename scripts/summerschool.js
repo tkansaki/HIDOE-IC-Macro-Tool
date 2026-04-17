@@ -68,7 +68,6 @@ function parse() {
     document.getElementById('startButton').disabled = false;
     document.getElementById('parseButton').disabled = true;
     document.getElementById('school').disabled = true;
-    document.getElementById('type').disabled = true;
     // console.log(data);
 }
 
@@ -81,7 +80,6 @@ function start() {
         chrome.tabs.sendMessage(activeTab.id, {
             oper: "SSAutoProv",
             school: schools[document.getElementById('school').value],
-            type: document.getElementById('type').value,
             data,
         });
     });

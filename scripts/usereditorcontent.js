@@ -661,16 +661,17 @@ async function cleanup(data) {
 
 //Summer School Functions
 
-function addRoles(data, school, type) {
+function addRoles(data, school) {
     let SSRoles = "";
     if (data[4].includes("Summer School Data Entry")) {
         SSRoles += "*Summer School Data Entry Staff, "
     }
     if (data[4].includes("Summer School Teacher")) {
-        if (type == "elementary") {
-            SSRoles += "*Summer School Elementary Teacher"
-        } else if (type == "secondary") {
-            SSRoles += "*Summer School Secondary Teacher"
+        if (school.elementary) {
+            SSRoles += "*Summer School Elementary Teacher, "
+        }
+        if (school.secondary) {
+            SSRoles += "*Summer School Secondary Teacher, "
         }
     }  
 
@@ -756,7 +757,7 @@ function ensureActive() {
     }
 }
 
-async function summerSchoolAutoProv(school, type, data) {
+async function summerSchoolAutoProv(school, data) {
     let failed = [];
     if (!isSearchOpen()) {
         openSearch()
@@ -785,7 +786,7 @@ async function summerSchoolAutoProv(school, type, data) {
             if (data[i][3].includes("Request Access")) {
                 let enabledStatus = ensureActive();
                 if (enabledStatus >= 0) {
-                    let numAddedRoles = addRoles(data[i], school, type);
+                    let numAddedRoles = addRoles(data[i], school);
                     if (numAddedRoles >= 0) {
                         await new Promise((resolve) => {
                             const timer = setInterval(() => {
@@ -849,7 +850,7 @@ chrome.runtime.onMessage.addListener(
         } else if (request.oper == "cleanup") {
             cleanup(request.data);
         } else if (request.oper == "SSAutoProv") {
-            summerSchoolAutoProv(request.school, request.type, request.data);
+            summerSchoolAutoProv(request.school, request.data);
         }
     }
 );
