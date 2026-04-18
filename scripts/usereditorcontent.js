@@ -441,7 +441,7 @@ function getCurrentRoles() {
         } while (getSelectedPrevPageButton().getAttribute('aria-disabled') === "false")
         return currentRoles;
     } catch (e) {
-        console.log(e);
+        //console.log(e);
         alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
         return [];
     }
@@ -905,6 +905,33 @@ async function summerSchoolAutoProv(school, data) {
     }
 }
 
+function copyUserRoles() {
+    let currentRoles = getCurrentRoles();
+    let rolestr = "";
+    for (let i = 0; i < currentRoles.length; i++) {
+        rolestr += `${currentRoles[i]}\n`;
+    }
+    setTimeout( async function () {
+        if (confirm(`Copy Removed Roles to Clipboard?\n\n${rolestr}`)) {
+            let tryagain = true;
+            while (tryagain) {
+                await new Promise((resolve) => setTimeout(resolve, 1000))
+                try {
+                    navigator.clipboard.writeText(rolestr);
+                    tryagain = false;
+                } catch (e){
+                    //console.log("try again?", e);
+                    if (confirm("Copy to clipboard failed. Try again?")) {
+                        tryagain = true;
+                    } else {
+                        tryagain = false;
+                    }
+                }
+            }
+        };
+    }, 250);
+}
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.oper == "addCalendar") {
@@ -917,6 +944,8 @@ chrome.runtime.onMessage.addListener(
             cleanup(request.data);
         } else if (request.oper == "SSAutoProv") {
             summerSchoolAutoProv(request.school, request.data);
+        } else if (request.oper == "copyUserRoles") {
+            copyUserRoles()
         }
     }
 );
