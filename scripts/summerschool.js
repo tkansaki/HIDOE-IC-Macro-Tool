@@ -1,32 +1,8 @@
 import schools from "./schools.js"
 
 let data;
+let savedInputElement;
 
-document.addEventListener('DOMContentLoaded', function() {
-    let options = [];
-    options.push(`<option value="" selected="selected">Choose School</option>`);
-    for (let i = 0; i < schools.length; i++){
-        options.push(`<option value="${i}">${schools[i].schoolName}</option>`);
-    }
-    document.getElementById('school').innerHTML = options;
-    document.getElementById('parseButton').addEventListener('click', function (event) {
-        parse();
-    });
-    document.getElementById('startButton').addEventListener('click', function (event) {
-        start();
-    });
-    document.getElementById('showButton').addEventListener('click', function (event) {
-        document.getElementById('notes').style.display = "block";
-        outputComment();
-        outputWorkNotes()
-    });
-    document.getElementById('copyAdditionalComments').addEventListener('click', function (event) {
-        copyAdditionalComments();
-    });
-    document.getElementById('copyWorkNotes').addEventListener('click', function (event) {
-        copyWorkNotes();
-    });
-});
 
 function copySuccess() {
     let msg = document.createElement('div');
@@ -150,6 +126,7 @@ function printTable() {
         }
         mainTable.appendChild(row);
     }
+    savedInputElement = document.getElementById("mainArea").querySelector('textarea');
     document.getElementById("mainArea").innerHTML = "";
     document.getElementById("mainArea").appendChild(mainTable);
 }
@@ -176,6 +153,22 @@ function parse() {
     // console.log(data);
 }
 
+function reset() {
+    document.getElementById('startButton').disabled = true;
+    document.getElementById('resetButton').disabled = true;
+    document.getElementById('showButton').disabled = true;
+    document.getElementById('parseButton').disabled = false;
+    document.getElementById('school').disabled = false;
+
+    document.getElementById('additionalComments').value = "";
+    document.getElementById('workNotes').value = "";
+    document.getElementById('notes').style.display = "none";
+
+    document.getElementById("mainArea").innerHTML = "";
+    document.getElementById("mainArea").appendChild(savedInputElement);
+
+}
+
 function start() {
     chrome.tabs.query({
         currentWindow: true,
@@ -189,3 +182,31 @@ function start() {
         });
     });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    let options = [];
+    options.push(`<option value="" selected="selected">Choose School</option>`);
+    for (let i = 0; i < schools.length; i++){
+        options.push(`<option value="${i}">${schools[i].schoolName}</option>`);
+    }
+    document.getElementById('school').innerHTML = options;
+    document.getElementById('parseButton').addEventListener('click', function (event) {
+        parse();
+    });
+    document.getElementById('startButton').addEventListener('click', function (event) {
+        start();
+    });document.getElementById('resetButton').addEventListener('click', function (event) {
+        reset();
+    });
+    document.getElementById('showButton').addEventListener('click', function (event) {
+        document.getElementById('notes').style.display = "block";
+        outputComment();
+        outputWorkNotes()
+    });
+    document.getElementById('copyAdditionalComments').addEventListener('click', function (event) {
+        copyAdditionalComments();
+    });
+    document.getElementById('copyWorkNotes').addEventListener('click', function (event) {
+        copyWorkNotes();
+    });
+});
