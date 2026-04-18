@@ -462,7 +462,7 @@ function disableWorker() {
                 simulateClick(getSelectedPrevPageButton());
             }
             const roles = getSelectedRoles();
-            for (let i = 0; i < roles.length; i++) {
+            for (let i = roles.length - 1; i >= 0; i--) {
                 let title = roles[i].textContent;
                 if (!title.includes("*Disabled")) {
                     simulateClick(roles[i]);
@@ -524,7 +524,11 @@ function disableWorker() {
 
 function disableUser() {
     try {
-        let rolestr = disableWorker().join("\n");
+        let removedRoles = disableWorker();
+        let rolestr = "";
+        for (let i = removedRoles.length - 1; i >= 0; i--) {
+            rolestr += `${removedRoles[i]}\n`;
+        }
         setTimeout( async function () {
             if (confirm(`Copy Removed Roles to Clipboard?\n\n${rolestr}`)) {
                 let tryagain = true;
