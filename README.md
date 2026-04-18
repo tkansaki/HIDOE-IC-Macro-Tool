@@ -1,9 +1,9 @@
 # HIDOE IC MACRO TOOL
 This is a Chrome Extension that was built by Trevor Kansaki for use by the Unit 2 staff of the STSSB. This will allow the ability to add, edit, and delete data on mass from the front end of the Hawaii Infinite Campus website. This tool only works on the "New Look" and will show an error message that you are not on the correct page if you are still working on the old platform.
 
--Versions before v6.0 will not work on current production version of IC as of 12/30/2024. 
--Versions before v8.3 will not work on current production version of IC as of 04/17/2026.
--Version v9.0 works on the current production version of IC as of 04/17/2026. 
+- Versions before v6.0 will not work on current production version of IC as of 12/30/2024. 
+- Versions before v8.3 will not work on current production version of IC as of 04/17/2026.
+- Version v9.0 works on the current production version of IC as of 04/17/2026. 
 
 Current Features:
 - District Assignments Page Macros
