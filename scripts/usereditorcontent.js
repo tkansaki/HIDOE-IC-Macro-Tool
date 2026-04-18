@@ -621,7 +621,7 @@ async function cleanup(data) {
                     const timer = setInterval(() => {
                         let currentLength = getSelectedRowCount();
                         //Plus 1 accounts for added *Disabled role
-                        if (currentLength <= initialLength - currentRoles.length + 1) {
+                        if (currentLength == initialLength - currentRoles.length + 1) {
                             clearTimeout(timer);
                             resolve();
                         }
@@ -708,6 +708,53 @@ function addRoles(data, school) {
     }
 }
 
+function removeRoles(data, school) {
+    let SSRoles = "";
+    if (data[4].includes("Summer School Data Entry")) {
+        SSRoles += "*Summer School Data Entry Staff, "
+    }
+    if (data[4].includes("Summer School Teacher")) {
+        if (school.elementary) {
+            SSRoles += "*Summer School Elementary Teacher, "
+        }
+        if (school.secondary) {
+            SSRoles += "*Summer School Secondary Teacher, "
+        }
+    }  
+
+    try {
+        let numRemovedRoles = 0;
+        simulateClick(getSelectedLastPageButton());
+        let init = true;
+        do {
+            if (init) {
+                init = false;
+            } else {
+                simulateClick(getSelectedPrevPageButton());
+            }
+            const roles = getSelectedRoles();
+            for (let i = 0; i < roles.length; i++) {
+                let title = roles[i].textContent;
+                let parsedTitle = parseTitle(title);
+                if (SSRoles.includes(title)) {
+                    simulateClick(roles[i]);
+                        numRemovedRoles++;
+                }
+                if (schoolMatch(school, parsedTitle.name)) {
+                    if (parsedTitle.period == "SS") {
+                        simulateClick(roles[i]);
+                        numRemovedRoles++;
+                    }
+                }
+            }
+        } while (getSelectedPrevPageButton().getAttribute('aria-disabled') === "false")
+        return numRemovedRoles;
+    } catch (e) {
+        alert("An Error Occurred. You may not be on the correct page or the account type does not allow user roles for access");
+        return -1;
+    }
+}
+
 function removeDisabled() {
     try {
         simulateClick(getSelectedLastPageButton());
@@ -786,12 +833,13 @@ async function summerSchoolAutoProv(school, data) {
             if (data[i][3].includes("Request Access")) {
                 let enabledStatus = ensureActive();
                 if (enabledStatus >= 0) {
+                    //Add Roles Functionality
                     let numAddedRoles = addRoles(data[i], school);
                     if (numAddedRoles >= 0) {
                         await new Promise((resolve) => {
                             const timer = setInterval(() => {
                                 let currentLength = getSelectedRowCount();
-                                if (currentLength <= initialLength + numAddedRoles - enabledStatus) {
+                                if (currentLength == initialLength + numAddedRoles - enabledStatus) {
                                     clearTimeout(timer);
                                     resolve();
                                 }
@@ -806,7 +854,25 @@ async function summerSchoolAutoProv(school, data) {
                     cont = false
                 }
             } else {
-                //remove role functionality here
+                //Remove Roles Functionality
+                let numRemovedRoles = removeRoles(data[i], school);
+                if (numRemovedRoles >= 0) {
+                    await new Promise((resolve) => {
+                        const timer = setInterval(() => {
+                            let currentLength = getSelectedRowCount();
+                            if (currentLength == initialLength - numRemovedRoles) {
+                                clearTimeout(timer);
+                                resolve();
+                            }
+                        }, 250);
+                    });
+                } else {
+                    failed.push(`${data[i][0]} (${data[i][1]})`)
+                    cont = false
+                }
+                if (getCurrentRoles().length <= 0) {
+                    disableWorker();
+                }
             }
         }
         if (cont) {
