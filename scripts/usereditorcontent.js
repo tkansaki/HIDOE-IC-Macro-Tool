@@ -435,7 +435,7 @@ function getCurrentRoles() {
                 simulateClick(getSelectedPrevPageButton());
             }
             const roles = getSelectedRoles();
-            for (let i = 0; i < roles.length; i++) {
+            for (let i = roles.length - 1; i >= 0; i--) {
                 currentRoles.push(roles[i].textContent);
             }
         } while (getSelectedPrevPageButton().getAttribute('aria-disabled') === "false")
@@ -908,7 +908,7 @@ async function summerSchoolAutoProv(school, data) {
 function copyUserRoles() {
     let currentRoles = getCurrentRoles();
     let rolestr = "";
-    for (let i = 0; i < currentRoles.length; i++) {
+    for (let i = currentRoles.length - 1; i >= 0; i--) {
         rolestr += `${currentRoles[i]}\n`;
     }
     setTimeout( async function () {
