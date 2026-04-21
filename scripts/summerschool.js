@@ -78,7 +78,6 @@ function outputWorkNotes() {
         } else {
             text += `Removed from ${data[i][0]} (${data[i][1]}):\n`;
         }
-        text += `Added to ${data[i][0]} (${data[i][1]}):\n`;
         text += `${calendar}\n`;
         if (data[i][4].includes("Summer School Data Entry")) {
             text += "*Summer School Data Entry Staff\n";
