@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <script src="/scripts/verify.js" type="module"></script>
+    <link rel="stylesheet" href="/styles/usereditorstyle.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body style="width: 800px">
+    <div class="container-fluid m-2">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/content/stafflocator/verify.html">SS Verify</a>
+        </li>
+      </ul>
+    </div>
+    <div id="mainArea" class="m-2 px-2" style="height: 200px; overflow-y: scroll;">
+      <textarea class="form-control" id="pastedList"></textarea>
+    </div>
+    <div class="container-fluid m-1">
+      <div class="row">
+        <div class="col">
+          <div class="input-group mb-3">
+            <button type="button" class="btn btn-primary btn-sm" id="parseButton">Parse</button>
+          </div>
+        </div>
+        <div class="col">
+          <button type="button" class="btn btn-warning btn-sm" id="resetButton" disabled>Reset</button>
+          <button type="button" class="btn btn-primary btn-sm" id="startButton" disabled>Start</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
             url.includes("https://hawaii.infinitecampus.org/campus/sis/tools-core/user-account-editor")
             ) {
             location.replace("/content/user/addcalendar.html");
+        } else if (
+            url.includes("https://hawaii.infinitecampus.org/sandbox/sis/campus-tools/staff-locator") ||
+            url.includes("https://hawaii.infinitecampus.org/campus/sis/campus-tools/staff-locator")
+            ) {
+            location.replace("/content/stafflocator/verify.html");
         }
         else {
             location.replace("/content/error.html");
