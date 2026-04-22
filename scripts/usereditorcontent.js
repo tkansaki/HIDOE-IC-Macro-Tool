@@ -191,7 +191,7 @@ function waitForSearch(resolve) {
         if (document.getElementsByTagName('ic-user-search-result').length > 0) {
             clearTimeout(timer);
             resolve(true);
-        } else if (document.querySelector('div[data-cy="ic-tool-context-search-no-results"]')) {
+        } else if (document.querySelector('div[data-cy="nav-wrapper-tool-context-search-no-results"]')) {
             clearTimeout(timer);
             resolve(false);
         }
